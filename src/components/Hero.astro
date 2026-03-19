@@ -3,38 +3,50 @@ import { portfolioData } from "../data/portfolio.js";
 ---
 
 <header
-    class="min-h-screen flex flex-col justify-center relative overflow-hidden"
+  class="min-h-screen flex flex-col justify-center relative overflow-hidden"
 >
-    <div
-        class="absolute w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(99,102,241,0.25)_0%,transparent_60%)] -top-[20vh] -left-[10vw] rounded-full -z-10 blur-[80px] animate-[float_10s_infinite_alternate]"
-    >
-    </div>
-    <div class="container animate-[fade-up_1s_ease-out]">
-        <p class="text-indigo-500 text-lg font-semibold mb-4 tracking-widest">
-            Hi, my name is
-        </p>
-        <h1
-            class="text-[clamp(3rem,8vw,5rem)] font-extrabold leading-[1.1] m-0 bg-[linear-gradient(120deg,#fff,#a5b4fc)] bg-clip-text text-transparent"
-        >
-            {portfolioData.name}.
-        </h1>
-        <h2
-            class="text-[clamp(3rem,8vw,5rem)] font-extrabold leading-[1.1] text-gray-400 mt-2"
-        >
-            I build things for the web.
-        </h2>
-        <p class="mt-6 max-w-[600px] text-lg leading-relaxed text-gray-400">
-            {portfolioData.tagline}
-        </p>
-        <p class="mt-6 max-w-[600px] text-lg leading-relaxed text-gray-400">
-            {portfolioData.about}
-        </p>
+  <div
+    class="absolute w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(99,102,241,0.25)_0%,transparent_60%)] -top-[20vh] -left-[10vw] rounded-full -z-10 blur-[80px] animate-[float_10s_infinite_alternate]"
+  >
+  </div>
 
-        <div class="mt-12 flex flex-col md:flex-row gap-6">
-            <a href="mailto:hello@thathsara.dev" class="primary-btn"
-                >Get In Touch</a
-            >
-            <a href="#projects" class="secondary-btn">View My Work</a>
-        </div>
+  <!-- Spline 3D Viewer Element -->
+  <div
+    class="absolute inset-0 md:left-1/2 w-full md:w-1/2 h-full z-0 opacity-50 md:opacity-100 pointer-events-none md:pointer-events-auto"
+  >
+    <script
+      type="module"
+      src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"
+    ></script>
+    <spline-viewer
+      url="https://prod.spline.design/fJ2ptJKzT-sDkpfO/scene.splinecode"
+      ></spline-viewer>
+  </div>
+
+  <div class="container relative z-10 animate-[fade-up_1s_ease-out]">
+    <p class="text-indigo-500 text-lg font-semibold mb-4 tracking-widest">
+      Hi, my name is
+    </p>
+    <h1
+      class="text-[clamp(3rem,8vw,5rem)] font-extrabold leading-[1.1] m-0 bg-[linear-gradient(120deg,#fff,#a5b4fc)] bg-clip-text text-transparent"
+    >
+      {portfolioData.name}.
+    </h1>
+    <h2
+      class="text-[clamp(3rem,8vw,5rem)] font-extrabold leading-[1.1] text-violet-500 mt-2"
+    >
+      I build things for the web.
+    </h2>
+    <p class="mt-6 max-w-[600px] text-lg leading-relaxed text-gray-400">
+      {portfolioData.tagline}
+    </p>
+    <p class="mt-6 max-w-[600px] text-lg leading-relaxed text-gray-400">
+      {portfolioData.about}
+    </p>
+
+    <div class="mt-12 flex flex-col md:flex-row gap-6">
+      <a href="mailto:hello@thathsara.dev" class="primary-btn">Get In Touch</a>
+      <a href="#projects" class="secondary-btn">View My Work</a>
     </div>
+  </div>
 </header>
