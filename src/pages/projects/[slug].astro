@@ -1,0 +1,80 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Footer from "../../components/Footer.astro";
+import { portfolioData } from "../../data/portfolio.js";
+
+export function getStaticPaths() {
+    return portfolioData.projects.map((project) => ({
+        params: { slug: project.slug },
+        props: { project },
+    }));
+}
+
+const { project } = Astro.props;
+---
+
+<Layout title={`${project.title} | Thathsara`}>
+    <main class="container py-24 min-h-[80vh]">
+        <a
+            href="/"
+            class="inline-block text-indigo-500 font-mono mb-12 transition-transform duration-200 hover:-translate-x-1"
+            >&larr; Back to Home</a
+        >
+
+        <article class="project-details">
+            <h1
+                class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold m-0 mb-6 leading-[1.1] bg-[linear-gradient(120deg,#fff,#a5b4fc)] bg-clip-text text-transparent"
+            >
+                {project.title}
+            </h1>
+
+            <div class="flex flex-wrap gap-4 mb-12">
+                {
+                    project.tech.map((tech) => (
+                        <span class="bg-indigo-500/10 text-indigo-300 px-4 py-2 rounded-full text-sm font-medium border border-indigo-500/20">
+                            {tech}
+                        </span>
+                    ))
+                }
+            </div>
+
+            <div class="text-lg leading-relaxed text-gray-400">
+                <p
+                    class="text-xl text-slate-200 border-l-4 border-indigo-500 pl-6 mb-12"
+                >
+                    {project.description}
+                </p>
+
+                <h2 class="text-slate-200 mt-12 mb-4 text-[1.8rem]">
+                    The Problem
+                </h2>
+                <p>{project.details.problem}</p>
+
+                <h2 class="text-slate-200 mt-12 mb-4 text-[1.8rem]">
+                    Architecture & Tech Stack
+                </h2>
+                <p>{project.details.architecture}</p>
+
+                <h2 class="text-slate-200 mt-12 mb-4 text-[1.8rem]">
+                    Impact & Outcome
+                </h2>
+                <p>{project.details.outcome}</p>
+
+                <div class="mt-16 flex flex-col md:flex-row gap-6">
+                    <a
+                        href={project.liveLink}
+                        target="_blank"
+                        class="primary-btn">View Live Demo</a
+                    >
+                    <a
+                        href={project.githubLink}
+                        target="_blank"
+                        class="secondary-btn">Source Code</a
+                    >
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <Footer />
+</Layout>
