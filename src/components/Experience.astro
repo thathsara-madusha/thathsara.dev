@@ -10,7 +10,7 @@ import { portfolioData } from "../data/portfolio.js";
   >
     {
       portfolioData.experience.map((job) => (
-        <div class="relative overflow-hidden bg-white/2 border border-white/10 p-5 md:p-8 rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:bg-white/5 hover:shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)] group">
+        <div class="relative overflow-hidden bg-gray-800 bg-white/2 border border-white/10 p-5 md:p-8 rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:bg-white/5 hover:shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)] group">
           <div class="absolute top-0 left-0 w-[2px] h-full bg-indigo-500 scale-y-0 origin-bottom transition-transform duration-300 ease-in-out group-hover:scale-y-100 group-hover:origin-top" />
           <div class="flex flex-wrap items-baseline gap-2 mb-2">
             <h3 class="text-xl text-gray-100 m-0">{job.role}</h3>
