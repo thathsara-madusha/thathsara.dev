@@ -158,18 +158,14 @@ body::after {
 .app {
   position: relative;
   z-index: 3;
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: 32px 1fr auto;
 }
 
 .workspace {
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 0;
-  height: calc(100vh - 32px - var(--term-height, 220px));
+  height: calc(100vh - 32px);
   min-height: 0;
-  transition: height 240ms ease;
 }
 .main {
   overflow: auto;
@@ -293,7 +289,11 @@ body:not([data-ws]) .ws:first-of-type { border-top: none; }
   display: flex; flex-direction: column;
   font-family: var(--mono);
   font-size: 12px;
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
   transition: height 240ms ease;
 }
 .terminal.collapsed { height: 28px !important; }
@@ -383,6 +383,10 @@ body:not([data-ws]) .ws:first-of-type { border-top: none; }
   padding: 32px 32px 40px;
   min-height: 100%;
   align-content: start;
+  overflow: hidden;
+}
+.hero > div:first-child {
+  min-width: 0;
 }
 .hero-id {
   font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;

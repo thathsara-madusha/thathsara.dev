@@ -1,12 +1,12 @@
 // Cross-island reactive state, using Svelte 5 stores (writable). Could be runes-in-module
 // but writable() composes more nicely with .svelte and .astro consumers.
-import { writable } from 'svelte/store';
-import type { WorkspaceId } from './data';
+import { writable } from "svelte/store";
+import type { WorkspaceId } from "./data";
 
-export type Theme = 'amber' | 'matrix' | 'red-team';
+export type Theme = "amber" | "matrix" | "red-team";
 
-export const workspace = writable<WorkspaceId>('hero');
-export const theme = writable<Theme>('amber');
+export const workspace = writable<WorkspaceId>("hero");
+export const theme = writable<Theme>("amber");
 
 // Overlays
 export const matrixOpen = writable(false);
@@ -33,10 +33,10 @@ export const cmdBus = {
 };
 
 // Apply theme as a body class so global CSS picks it up.
-if (typeof document !== 'undefined') {
+if (typeof document !== "undefined") {
   theme.subscribe((t) => {
-    document.body.classList.remove('red-team', 'matrix-mode');
-    if (t === 'red-team') document.body.classList.add('red-team');
-    if (t === 'matrix') document.body.classList.add('matrix-mode');
+    document.body.classList.remove("red-team", "matrix-mode");
+    if (t === "red-team") document.body.classList.add("red-team");
+    if (t === "matrix") document.body.classList.add("matrix-mode");
   });
 }
