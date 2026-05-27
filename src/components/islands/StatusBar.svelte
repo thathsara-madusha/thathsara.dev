@@ -32,9 +32,9 @@
 </script>
 
 <div class="statusbar">
-  <div class="sb-cell brand" onclick={clickBrand} role="button" tabindex="0" title="brand">
+  <button class="sb-cell brand" onclick={clickBrand} title="brand">
     <span class="dot"></span>thathsara.dev
-  </div>
+  </button>
   <div class="sb-tabs">
     {#each workspaces as w}
       <button

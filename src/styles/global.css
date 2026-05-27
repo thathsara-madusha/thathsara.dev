@@ -99,6 +99,12 @@ body::after {
   color: var(--fg-soft);
   white-space: nowrap;
   gap: 8px;
+  background: none;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  font: inherit;
+  cursor: default;
 }
 .sb-cell.brand {
   color: var(--amber);

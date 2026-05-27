@@ -74,8 +74,10 @@
   let history = $state<string[]>([]);
   let histIdx = $state(-1);
   let mode = $state<'open' | 'collapsed' | 'maximized'>('open');
-  let body: HTMLDivElement;
-  let inputEl: HTMLInputElement;
+  let body = $state<HTMLDivElement | undefined>(undefined);
+  let inputEl = $state<HTMLInputElement | undefined>(undefined);
+
+  $effect(() => { if (mode !== 'collapsed') inputEl?.focus(); });
 
   /* helpers */
   function esc(s: string) {
@@ -101,7 +103,7 @@
   $effect(() => {
     // Auto-scroll when lines change
     lines;
-    if (body) tick().then(() => { body.scrollTop = body.scrollHeight; });
+    const el = body; if (el) tick().then(() => { el.scrollTop = el.scrollHeight; });
   });
 
   /* ============================================================
@@ -354,14 +356,12 @@
     else if (e.ctrlKey && e.key === 'm') { e.preventDefault(); mode = mode === 'maximized' ? 'open' : 'maximized'; }
   }
 
-  function focus() { inputEl?.focus(); }
-
   function toggleCollapse() { mode = mode === 'collapsed' ? 'open' : 'collapsed'; }
   function toggleMaximize() { mode = mode === 'maximized' ? 'open' : 'maximized'; }
 </script>
 
-<div class={`terminal ${mode === 'collapsed' ? 'collapsed' : ''} ${mode === 'maximized' ? 'maximized' : ''}`} onclick={focus} role="region" aria-label="terminal">
-  <div class="term-head" onclick={(e) => { e.stopPropagation(); if (mode === 'collapsed') mode = 'open'; }} role="presentation">
+<div class={`terminal ${mode === 'collapsed' ? 'collapsed' : ''} ${mode === 'maximized' ? 'maximized' : ''}`} role="region" aria-label="terminal">
+  <div class="term-head" onclick={(e) => { e.stopPropagation(); if (mode === 'collapsed') mode = 'open'; }} onkeydown={() => {}} role="presentation">
     <span class="ttl">▮ terminal</span>
     <span class="hint">/dev/pts/0 · thath-sh</span>
     <span class="hint" style="color: var(--fg-faint)">· tab=complete · ↑↓=history · ctrl-l=clear</span>

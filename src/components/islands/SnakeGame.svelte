@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { snakeOpen } from '../../lib/store';
 
-  let canvas: HTMLCanvasElement;
+  let canvas = $state<HTMLCanvasElement | undefined>(undefined);
   let score = $state(0);
   let gameOver = $state(false);
 
