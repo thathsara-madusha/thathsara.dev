@@ -1,0 +1,30 @@
+---
+import { writing } from '../../lib/data';
+---
+
+<section class="ws ws-blog" data-ws="blog">
+  <div class="section-head">
+    <h2>writing</h2>
+    <span class="crumb">blog/access.log</span>
+    <span class="badge">rss available</span>
+  </div>
+  <div class="log-wrap">
+    <div style="color: var(--fg-mute); font-size: 11px; margin-bottom: 10px;">
+      # tail -f ~/blog/access.log &nbsp; · &nbsp; {writing.length} entries
+    </div>
+    {writing.map((e) => (
+      <div class="log-entry">
+        <span class="ts">{e.ts}</span>
+        <span class={`lvl ${e.lvl}`}>{e.lvl}</span>
+        <div class="msg">
+          <div class="title">{e.title}</div>
+          <div class="sub">{e.sub}</div>
+          <div class="tags">{e.tags.map((t) => <span>{t}</span>)}</div>
+        </div>
+      </div>
+    ))}
+    <div style="color: var(--fg-faint); font-size: 11px; margin-top: 14px;">
+      # [end of log] — older entries: <a href="#" style="color: var(--amber)">archive/</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,34 @@
+---
+import { repos } from '../../lib/data';
+import GithubHeatmap from '../islands/GithubHeatmap.svelte';
+---
+
+<section class="ws ws-oss" data-ws="oss">
+  <div class="section-head">
+    <h2>open source</h2>
+    <span class="crumb">github.com/thathsara</span>
+    <span class="badge">last commit · 2h ago</span>
+  </div>
+  <div class="oss-wrap">
+    <div class="oss-head">
+      <div><div class="big">2,431</div><div class="lbl">contributions in the last year</div></div>
+      <div><div class="big" style="color: var(--mint)">47</div><div class="lbl">repositories</div></div>
+      <div><div class="big" style="color: var(--azure)">16.9k</div><div class="lbl">followers across</div></div>
+      <div><div class="big" style="color: var(--violet)">92</div><div class="lbl">PRs merged upstream</div></div>
+    </div>
+    <GithubHeatmap client:visible />
+    <div class="repo-list">
+      {repos.map((r) => (
+        <div class="repo">
+          <h4>{r.name}</h4>
+          <p>{r.desc}</p>
+          <div class="meta">
+            <span><span class="dot" style={`background: ${r.color}`}></span>{r.lang}</span>
+            <span>★ {r.stars}</span>
+            <span>⑂ {r.forks}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

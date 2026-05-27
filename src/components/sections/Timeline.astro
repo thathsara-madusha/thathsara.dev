@@ -1,0 +1,30 @@
+---
+import { timeline } from '../../lib/data';
+---
+
+<section class="ws ws-cv" data-ws="cv">
+  <div class="section-head">
+    <h2>timeline</h2>
+    <span class="crumb">git log --author=thathsara</span>
+    <span class="badge">9 years, 4 jobs</span>
+  </div>
+  <div class="timeline-wrap">
+    <div class="tl">
+      {timeline.map((t) => (
+        <div class={`tl-entry ${t.cur ? 'cur' : ''}`}>
+          <div class="when">{t.when}</div>
+          <h4>{t.role} <span class="at">@ {t.at}</span></h4>
+          <p>{t.notes}</p>
+          <div class="commit">
+            {t.commits.map((c) => <span>{c.k}: <b>{c.v}</b></span>)}
+          </div>
+        </div>
+      ))}
+      <div class="tl-entry">
+        <div class="when">2014</div>
+        <h4>$ git init</h4>
+        <p style="color: var(--fg-mute)">First commit. A python script to download cricket scores. Lost the repo, kept the habit.</p>
+      </div>
+    </div>
+  </div>
+</section>

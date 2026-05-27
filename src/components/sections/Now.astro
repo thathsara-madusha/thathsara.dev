@@ -1,0 +1,65 @@
+---
+import { now } from '../../lib/data';
+---
+
+<section class="ws ws-now" data-ws="now">
+  <div class="section-head">
+    <h2>now</h2>
+    <span class="crumb">~/.now</span>
+    <span class="badge">updated may 27 2026</span>
+  </div>
+  <div class="now-wrap">
+    <div class="now-card">
+      <h4>currently running <span class="stat">PID 0–6</span></h4>
+      <div class="procs">
+        <div class="row hdr"><span>pid</span><span>cmd</span><span>cpu</span><span>mem</span></div>
+        {now.procs.map((p) => (
+          <div class={`row ${p.hot ? 'hot' : ''}`}>
+            <span class="pid">{p.pid}</span>
+            <span class="cmd">{p.cmd} <span class="arg">{p.arg}</span></span>
+            <span class="cpu">{p.cpu}</span>
+            <span class="mem">{p.mem}</span>
+          </div>
+        ))}
+      </div>
+      <p style="color: var(--fg-mute); font-size: 11.5px; margin-top: 12px; line-height: 1.6;">
+        Pretraining a 350M-param policy model on a year of CloudTrail traces.
+        Writing chapter 3 of <span style="color: var(--fg)">Verifiable ML in Regulated Clouds</span>
+        (early 2027, manning).
+        On-call primary this rotation; pager has been quiet — I&rsquo;d like to keep it that way.
+      </p>
+    </div>
+
+    <div class="now-card">
+      <h4>reading <span class="stat">curr / done / next</span></h4>
+      <div class="reading-list">
+        {now.reading.map((r) => (
+          <div class="row">
+            <span class={`check ${r.state}`}>
+              {r.state === 'cur' ? '⏵' : r.state === 'done' ? '✓' : '○'}
+            </span>
+            <span>
+              <div class="t">{r.t}</div>
+              <div class="by">{r.by}</div>
+            </span>
+            <span style="color: var(--fg-faint); font-size: 10px;">{r.state}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="now-card" style="grid-column: 1 / -1;">
+      <h4>inbox <span class="stat">4 unread</span></h4>
+      <div class="reading-list">
+        {now.inbox.map((m) => (
+          <div class="row" style="grid-template-columns: 14px 1fr auto auto;">
+            <span class={`check ${m.sev === 'HI' ? 'cur' : ''}`}>●</span>
+            <span><div class="t">{m.subj}</div><div class="by">from {m.who}</div></span>
+            <span style="color: var(--fg-mute); font-size: 10.5px;">{m.sev}</span>
+            <span style="color: var(--fg-faint); font-size: 10.5px;">{m.when}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,78 @@
+---
+import { identity, ticker } from '../../lib/data';
+import Clock from '../islands/Clock.svelte';
+
+// Doubled for seamless CSS marquee loop. Timestamps are stable (rendered at build time).
+const doubled = [...ticker, ...ticker];
+---
+
+<section class="ws ws-hero" data-ws="hero">
+  <div class="hero">
+    <div>
+      <Clock client:load identity={identity} />
+
+      <h1 class="hero-name">
+        Thathsara<br />Madusha<span class="em">.</span>
+      </h1>
+
+      <p class="hero-tag">
+        Engineer at the seam between <span class="k">machine learning</span> and{' '}
+        <span class="s">cloud security</span>. I build models that learn from data the cloud isn&rsquo;t supposed
+        to leak — and the boring plumbing that keeps both true at 3am.
+      </p>
+
+      <div class="hero-meta">
+        <span>currently · <b>ML Security Lead</b> @ stealth</span>
+        <span>shipping · <b>shadow-rbac</b></span>
+        <span>writing · <b>verifiable ML in regulated clouds</b></span>
+        <span>on-call · <b>14 days clean</b></span>
+      </div>
+
+      <!-- Marquee is pure CSS, no JS island needed -->
+      <div class="ticker">
+        <div class="ticker-track">
+          {doubled.map((e, i) => (
+            <span class="ev">
+              <span class="t">[{String(7 + Math.floor(i / 2)).padStart(2, '0')}:{String((i * 7) % 60).padStart(2, '0')}]</span>
+              <span class="src">{e.src}</span>
+              <span class="msg">{e.msg}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-aside">
+      <div class="card">
+        <h4>// quick nav</h4>
+        <div style="display: grid; gap: 4px; font-size: 11.5px;">
+          <a href="#" data-nav="about" style="color: var(--fg-soft); text-decoration: none;">↳ about</a>
+          <a href="#" data-nav="projects" style="color: var(--fg-soft); text-decoration: none;">↳ projects (ml)</a>
+          <a href="#" data-nav="oss" style="color: var(--fg-soft); text-decoration: none;">↳ open source</a>
+          <a href="#" data-nav="blog" style="color: var(--fg-soft); text-decoration: none;">↳ writing</a>
+          <a href="#" data-nav="stack" style="color: var(--fg-soft); text-decoration: none;">↳ stack</a>
+          <a href="#" data-nav="cv" style="color: var(--fg-soft); text-decoration: none;">↳ timeline (cv)</a>
+          <a href="#" data-nav="now" style="color: var(--fg-soft); text-decoration: none;">↳ now</a>
+          <a href="#" data-nav="__terminal" style="color: var(--amber); text-decoration: none; margin-top: 4px;">↳ try the terminal ↓</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>// reach</h4>
+        <div style="display: grid; gap: 4px; font-size: 11.5px; color: var(--fg-soft);">
+          <div><span style="color: var(--fg-mute)">email&nbsp;&nbsp;</span>{identity.email}</div>
+          <div><span style="color: var(--fg-mute)">github&nbsp;</span>@{identity.github}</div>
+          <div><span style="color: var(--fg-mute)">twttr&nbsp;&nbsp;</span>@{identity.twitter}</div>
+          <div><span style="color: var(--fg-mute)">pgp&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: var(--mint)">{identity.pgp}</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="background: transparent; border-style: dashed; color: var(--fg-mute); font-size: 11px;">
+        <div style="color: var(--amber); font-size: 10px; letter-spacing: 0.12em; margin-bottom: 6px;">// PSST</div>
+        there are a few hidden things on this page.<br />
+        try typing <code style="color: var(--mint)">help</code>, <code style="color: var(--mint)">secrets</code>,
+        or the konami code. ↑↑↓↓←→←→ba
+      </div>
+    </div>
+  </div>
+</section>

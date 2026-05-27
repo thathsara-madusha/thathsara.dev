@@ -1,0 +1,44 @@
+---
+import { skills } from '../../lib/data';
+---
+
+<section class="ws ws-stack" data-ws="stack">
+  <div class="section-head">
+    <h2>stack</h2>
+    <span class="crumb">skills.toml</span>
+    <span class="badge">self-reported, biased</span>
+  </div>
+  <div class="stack-wrap">
+    {Object.entries(skills).map(([cat, items]) => (
+      <div class="stack-block">
+        <h4>{cat}</h4>
+        {items.map((s) => (
+          <div class="skill-row">
+            <span class="n">{s.n}</span>
+            <div class="skill-bar"><i style={`width: ${s.v * 100}%`}></i></div>
+            <span class="v">{s.since}</span>
+          </div>
+        ))}
+      </div>
+    ))}
+    <div class="stack-block" style="grid-column: 1 / -1;">
+      <h4>operating philosophy</h4>
+      <div style="color: var(--fg-soft); font-size: 12.5px; line-height: 1.7;">
+        <p style="margin: 0;">
+          <span style="color: var(--amber)">boring</span> infra,
+          <span style="color: var(--mint)"> sharp</span> tools.
+          I'd rather ship a 14MB model that runs forever than a 14GB one that wins a benchmark.
+          I'd rather write the runbook than the architecture diagram.
+          The most interesting work I do is the cleanup after someone else's incident.
+        </p>
+        <p style="margin: 10px 0 0;">
+          <span style="color: var(--fg-mute)"># things I will fight you on:</span><br />
+          YAML is not a programming language ·
+          every classifier is a policy ·
+          if your IAM doc needs a comment, rewrite it ·
+          quantization first, then beg for more GPUs.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

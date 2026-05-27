@@ -1,17 +1,57 @@
 ---
+import Layout from '../layouts/Layout.astro';
 
+// Static section components (Astro = zero JS)
+import Hero from '../components/sections/Hero.astro';
+import About from '../components/sections/About.astro';
+import Projects from '../components/sections/Projects.astro';
+import OSS from '../components/sections/OSS.astro';
+import Writing from '../components/sections/Writing.astro';
+import Stack from '../components/sections/Stack.astro';
+import Timeline from '../components/sections/Timeline.astro';
+import Now from '../components/sections/Now.astro';
+
+// Svelte islands (hydrated client-side)
+import StatusBar from '../components/islands/StatusBar.svelte';
+import WorkspaceController from '../components/islands/WorkspaceController.svelte';
+import Aside from '../components/islands/Aside.svelte';
+import Terminal from '../components/islands/Terminal.svelte';
+import BootWrapper from '../components/islands/BootWrapper.svelte';
+import MatrixRain from '../components/islands/MatrixRain.svelte';
+import SnakeGame from '../components/islands/SnakeGame.svelte';
+import Toast from '../components/islands/Toast.svelte';
+import GlobalEffects from '../components/islands/GlobalEffects.svelte';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+  <BootWrapper client:load />
+  <GlobalEffects client:load />
+
+  <div class="app">
+    <StatusBar client:load />
+
+    <div class="workspace">
+      <main class="main">
+        <Hero />
+        <About />
+        <Projects />
+        <OSS />
+        <Writing />
+        <Stack />
+        <Timeline />
+        <Now />
+      </main>
+      <Aside client:visible />
+    </div>
+
+    <Terminal client:load />
+  </div>
+
+  <!-- Workspace switcher sets body[data-ws]; no visible UI -->
+  <WorkspaceController client:load />
+
+  <!-- Overlays (each is internally gated on its store flag) -->
+  <MatrixRain client:idle />
+  <SnakeGame client:idle />
+  <Toast client:load />
+</Layout>
