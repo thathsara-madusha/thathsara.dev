@@ -79,6 +79,11 @@
 
   $effect(() => { if (mode !== 'collapsed') inputEl?.focus(); });
 
+  $effect(() => {
+    const h = mode === 'collapsed' ? '28px' : mode === 'maximized' ? 'calc(100vh - 32px)' : '220px';
+    document.documentElement.style.setProperty('--term-height', h);
+  });
+
   /* helpers */
   function esc(s: string) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

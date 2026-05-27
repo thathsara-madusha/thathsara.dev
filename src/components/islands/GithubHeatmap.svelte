@@ -22,6 +22,7 @@
   })();
 </script>
 
+<div class="heatmap-scroll">
 <div class="heatmap" style={`grid-template-columns: repeat(${weeks}, 11px);`}>
   {#each Array(7) as _, day}
     {#each Array(weeks) as _, week}
@@ -29,4 +30,5 @@
       <div class={`cell ${l ? 'l' + l : ''}`} style={`grid-column: ${week + 1}; grid-row: ${day + 1};`}></div>
     {/each}
   {/each}
+</div>
 </div>
