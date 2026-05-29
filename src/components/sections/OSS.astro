@@ -1,33 +1,114 @@
 ---
-import { repos } from '../../lib/data';
 import GithubHeatmap from '../islands/GithubHeatmap.svelte';
+
+const GITHUB_USER = 'nova9';
+const token = import.meta.env.GITHUB_TOKEN;
+const headers: Record<string, string> = {
+  'Accept': 'application/vnd.github+json',
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+};
+
+const LANG_COLORS: Record<string, string> = {
+  TypeScript: '#2b7489', JavaScript: '#f1e05a', Python: '#3572A5',
+  Go: '#00ADD8', Rust: '#dea584', PHP: '#4f5d95', Shell: '#89e051',
+  CSS: '#563d7c', HTML: '#e34c26', Vue: '#41b883', Svelte: '#ff3e00',
+};
+
+// fetch user + repos in parallel
+const [userRes, reposRes] = await Promise.all([
+  fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers }),
+  fetch(`https://api.github.com/users/${GITHUB_USER}/repos?sort=pushed&per_page=100`, { headers }),
+]);
+
+const user = userRes.ok ? await userRes.json() : null;
+const allRepos = reposRes.ok ? await reposRes.json() : [];
+
+// top 6 by stars, exclude forks
+const repos = [...allRepos]
+  .filter((r: any) => !r.fork)
+  .sort((a: any, b: any) => b.stargazers_count - a.stargazers_count)
+  .slice(0, 6);
+
+// contributions heatmap via GraphQL (requires token)
+let heatmapCells: number[] = [];
+let totalContributions = 0;
+
+if (token) {
+  const gql = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: `{
+        user(login: "${GITHUB_USER}") {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                }
+              }
+            }
+          }
+        }
+      }`,
+    }),
+  });
+
+  if (gql.ok) {
+    const gqlData = await gql.json();
+    const cal = gqlData?.data?.user?.contributionsCollection?.contributionCalendar;
+    if (cal) {
+      totalContributions = cal.totalContributions;
+      const counts: number[] = cal.weeks.flatMap((w: any) =>
+        w.contributionDays.map((d: any) => d.contributionCount)
+      );
+      const max = Math.max(...counts, 1);
+      heatmapCells = counts.map((c) => {
+        if (c === 0) return 0;
+        const ratio = c / max;
+        if (ratio < 0.15) return 1;
+        if (ratio < 0.4)  return 2;
+        if (ratio < 0.7)  return 3;
+        return 4;
+      });
+    }
+  }
+}
+
+const followers = user?.followers ?? '—';
+const publicRepos = user?.public_repos ?? '—';
+const contributions = totalContributions || '—';
 ---
 
 <section class="ws ws-oss" data-ws="oss">
   <div class="section-head">
     <h2>open source</h2>
-    <span class="crumb">github.com/thathsara</span>
-    <span class="badge">last commit · 2h ago</span>
+    <span class="crumb">github.com/{GITHUB_USER}</span>
+    <span class="badge">live data</span>
   </div>
   <div class="oss-wrap">
     <div class="oss-head">
-      <div><div class="big">2,431</div><div class="lbl">contributions in the last year</div></div>
-      <div><div class="big" style="color: var(--mint)">47</div><div class="lbl">repositories</div></div>
-      <div><div class="big" style="color: var(--azure)">16.9k</div><div class="lbl">followers across</div></div>
-      <div><div class="big" style="color: var(--violet)">92</div><div class="lbl">PRs merged upstream</div></div>
+      <div><div class="big">{contributions}</div><div class="lbl">contributions this year</div></div>
+      <div><div class="big" style="color: var(--mint)">{publicRepos}</div><div class="lbl">public repositories</div></div>
+      <div><div class="big" style="color: var(--azure)">{followers}</div><div class="lbl">followers</div></div>
+      <div><div class="big" style="color: var(--violet)">{repos.length}</div><div class="lbl">top repos shown</div></div>
     </div>
-    <GithubHeatmap client:visible />
+    <GithubHeatmap client:visible cells={heatmapCells} />
     <div class="repo-list">
-      {repos.map((r) => (
-        <div class="repo">
+      {repos.map((r: any) => (
+        <a class="repo" href={r.html_url} target="_blank" rel="noopener" style="text-decoration: none; color: inherit;">
           <h4>{r.name}</h4>
-          <p>{r.desc}</p>
+          <p>{r.description || '—'}</p>
           <div class="meta">
-            <span><span class="dot" style={`background: ${r.color}`}></span>{r.lang}</span>
-            <span>★ {r.stars}</span>
-            <span>⑂ {r.forks}</span>
+            <span>
+              <span class="dot" style={`background: ${LANG_COLORS[r.language] ?? '#888'}`}></span>
+              {r.language || '—'}
+            </span>
+            <span>★ {r.stargazers_count}</span>
+            <span>⑂ {r.forks_count}</span>
           </div>
-        </div>
+        </a>
       ))}
     </div>
   </div>

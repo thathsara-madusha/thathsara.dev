@@ -31,9 +31,10 @@ import { projects } from '../../lib/data';
           <div class="label">// live</div>
           <pre style="margin: 0; font-family: inherit; color: var(--fg-soft); white-space: pre-wrap; font-size: 10.5px;">{p.demo}</pre>
           <div style="margin-top: auto; padding-top: 12px; display: flex; gap: 12px; font-size: 10.5px;">
-            <a href="#" onclick="event.preventDefault()" style="color: var(--amber)">↗ github</a>
-            <a href="#" onclick="event.preventDefault()" style="color: var(--mint)">↗ docs</a>
-            <a href="#" onclick="event.preventDefault()" style="color: var(--azure)">↗ demo</a>
+            {p.github
+              ? <a href={p.github} target="_blank" rel="noopener" style="color: var(--amber)">↗ github</a>
+              : <span style="color: var(--fg-faint)">↗ github</span>
+            }
           </div>
         </div>
       </article>

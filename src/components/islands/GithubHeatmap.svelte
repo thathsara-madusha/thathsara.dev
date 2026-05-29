@@ -1,7 +1,9 @@
 <script lang="ts">
-  let { weeks = 53 }: { weeks?: number } = $props();
+  let { cells: realCells = null, weeks = 53 }: { cells?: number[] | null; weeks?: number } = $props();
 
   const cells = (() => {
+    if (realCells && realCells.length > 0) return realCells;
+    // fallback: seeded fake data
     const arr: number[] = [];
     let rng = 7;
     const r = () => { rng = (rng * 9301 + 49297) % 233280; return rng / 233280; };
@@ -20,13 +22,15 @@
     }
     return arr;
   })();
+
+  const cols = Math.ceil(cells.length / 7);
 </script>
 
 <div class="heatmap-scroll">
-<div class="heatmap" style={`grid-template-columns: repeat(${weeks}, 11px);`}>
+<div class="heatmap" style={`grid-template-columns: repeat(${cols}, 11px);`}>
   {#each Array(7) as _, day}
-    {#each Array(weeks) as _, week}
-      {@const l = cells[week * 7 + day]}
+    {#each Array(cols) as _, week}
+      {@const l = cells[week * 7 + day] ?? 0}
       <div class={`cell ${l ? 'l' + l : ''}`} style={`grid-column: ${week + 1}; grid-row: ${day + 1};`}></div>
     {/each}
   {/each}
