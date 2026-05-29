@@ -2,7 +2,7 @@
 import GithubHeatmap from '../islands/GithubHeatmap.svelte';
 
 const GITHUB_USER = 'nova9';
-const token = import.meta.env.GITHUB_TOKEN;
+const token = import.meta.env.OSS_TOKEN;
 const headers: Record<string, string> = {
   'Accept': 'application/vnd.github+json',
   ...(token ? { Authorization: `Bearer ${token}` } : {}),
