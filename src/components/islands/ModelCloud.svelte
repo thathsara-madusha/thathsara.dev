@@ -1,5 +1,9 @@
 <script lang="ts">
-  let { src = '/me.glb', lockLook = false }: { src?: string; lockLook?: boolean } = $props();
+  let {
+    src = '/me.glb',
+    lockLook = false,
+    shiftX = 0,
+  }: { src?: string; lockLook?: boolean; shiftX?: number } = $props();
 
   let canvas = $state<HTMLCanvasElement | undefined>(undefined);
   let wrap = $state<HTMLDivElement | undefined>(undefined);
@@ -26,13 +30,17 @@
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
-      camera.position.set(0, 0, 4);
+      // Offsetting camera + target equally along x shifts the model on screen
+      // (positive shiftX → model toward the right) without skewing perspective.
+      camera.position.set(-shiftX, 0, 4);
 
       const controls = new OrbitControls(camera, canvas);
       controls.enableDamping = true;
       controls.dampingFactor = 0.08;
       controls.autoRotate = false;
       controls.enablePan = false;
+      controls.target.set(-shiftX, 0, 0);
+      controls.update();
       // when locked, the user can't orbit/zoom the camera by hand
       controls.enableRotate = !lockLook;
       controls.enableZoom = !lockLook;
