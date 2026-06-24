@@ -47,15 +47,15 @@
       cleanupResize = () => window.removeEventListener('resize', resize);
       resize();
 
-      // soft circular blue glow sprite
+      // crisp round white dot
       const sc = document.createElement('canvas');
       sc.width = sc.height = 64;
       const g = sc.getContext('2d')!;
       const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
       grad.addColorStop(0.0, 'rgba(255,255,255,1)');
-      grad.addColorStop(0.25, 'rgba(245,248,255,0.95)');
-      grad.addColorStop(0.55, 'rgba(225,235,250,0.45)');
-      grad.addColorStop(1.0, 'rgba(215,228,250,0)');
+      grad.addColorStop(0.45, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.75, 'rgba(255,255,255,0.6)');
+      grad.addColorStop(1.0, 'rgba(255,255,255,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
       const sprite = new THREE.CanvasTexture(sc);
@@ -165,29 +165,24 @@
           const geo = new THREE.BufferGeometry();
           geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
           geo.setAttribute('aNormal', new THREE.BufferAttribute(nrm, 3));
-          // Custom point shader: replicates three's size-attenuation, but fades out
-          // back-facing points (via the surface normal) so the front of the face
-          // reads instead of the whole closed surface summing into a glowing blob.
+          // Custom point shader: size-attenuated white dots. Every sampled point
+          // is drawn equally (front and back surface alike) so the full volume
+          // reads as an even white particle cloud, matching the Tripo look.
           const mat = new THREE.ShaderMaterial({
             uniforms: {
-              uSize: { value: 0.012 },
+              uSize: { value: 0.009 },
               uScale: { value: renderer.domElement.height * 0.5 },
               uMap: { value: sprite },
-              uColor: { value: new THREE.Color(0xf2f6ff) },
+              uColor: { value: new THREE.Color(0xffffff) },
             },
             transparent: true,
             depthWrite: false,
-            blending: THREE.AdditiveBlending,
+            blending: THREE.NormalBlending,
             vertexShader: `
-              attribute vec3 aNormal;
               uniform float uSize;
               uniform float uScale;
-              varying float vFacing;
               void main() {
                 vec4 mv = modelViewMatrix * vec4(position, 1.0);
-                vec3 n = normalize(normalMatrix * aNormal);
-                vec3 viewDir = normalize(-mv.xyz);
-                vFacing = dot(n, viewDir);
                 gl_PointSize = uSize * (uScale / -mv.z);
                 gl_Position = projectionMatrix * mv;
               }
@@ -195,12 +190,10 @@
             fragmentShader: `
               uniform sampler2D uMap;
               uniform vec3 uColor;
-              varying float vFacing;
               void main() {
-                float facing = smoothstep(-0.15, 0.45, vFacing);
-                if (facing <= 0.001) discard;
                 vec4 tex = texture2D(uMap, gl_PointCoord);
-                gl_FragColor = vec4(uColor, 1.0) * tex * facing;
+                if (tex.a < 0.02) discard;
+                gl_FragColor = vec4(uColor, tex.a);
               }
             `,
           });
@@ -243,7 +236,7 @@
           points.geometry.attributes.position.needsUpdate = true;
           if (introT >= 1) introActive = false;
         }
-        if (points) points.material.uniforms.uSize.value = 0.011 + Math.sin(t * 1.5) * 0.0015;
+        if (points) points.material.uniforms.uSize.value = 0.009 + Math.sin(t * 1.5) * 0.001;
         controls.update();
         renderer.render(scene, camera);
         raf = requestAnimationFrame(tick);
