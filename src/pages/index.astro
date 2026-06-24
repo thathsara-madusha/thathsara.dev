@@ -1,18 +1,352 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ModelCloud from '../components/islands/ModelCloud.svelte';
+
+const nav = [
+  { id: 'top', label: 'intro' },
+  { id: 'about', label: 'about' },
+  { id: 'focus', label: 'focus' },
+  { id: 'work', label: 'work' },
+  { id: 'path', label: 'path' },
+  { id: 'contact', label: 'contact' },
+];
+
+const focus = [
+  {
+    k: 'machine learning',
+    d: 'Training, evaluating and shipping models — from data pipelines to inference services that hold up under real traffic.',
+    tags: ['PyTorch', 'Transformers', 'MLOps'],
+  },
+  {
+    k: 'cloud security',
+    d: 'Threat modelling, IAM hardening and detection engineering across AWS and GCP. Security that ships with the product, not after it.',
+    tags: ['AWS', 'IAM', 'Detection'],
+  },
+  {
+    k: 'platform engineering',
+    d: 'Typed, observable services and the CI/CD that keeps them honest. Infra-as-code, containers, and clean interfaces.',
+    tags: ['TypeScript', 'Go', 'Terraform'],
+  },
+];
+
+const work = [
+  {
+    n: '01',
+    title: 'Anomaly detection pipeline',
+    desc: 'Streaming detection over cloud audit logs — surfaces credential abuse and lateral movement minutes after it starts.',
+    meta: ['Python', 'Kafka', 'AWS'],
+  },
+  {
+    n: '02',
+    title: 'Point-cloud renderer',
+    desc: 'The figure you are looking at — a GPU point sampler that turns any glTF mesh into an even, twinkling particle cloud.',
+    meta: ['Three.js', 'WebGL', 'GLSL'],
+  },
+  {
+    n: '03',
+    title: 'Policy-as-code guardrails',
+    desc: 'Terraform modules and OPA policies that block misconfigured buckets and over-broad roles before they reach prod.',
+    meta: ['Terraform', 'OPA', 'GCP'],
+  },
+];
+
+const path = [
+  { when: 'now', role: 'Software Engineer', at: 'ML × Cloud Security', cur: true, note: 'Building detection systems and the ML behind them.' },
+  { when: 'before', role: 'Backend Engineer', at: 'Platform', cur: false, note: 'Typed services, CI/CD, and observability at scale.' },
+  { when: 'start', role: 'Computer Science', at: 'University', cur: false, note: 'Foundations — systems, algorithms, and a lot of curiosity.' },
+];
 ---
 
 <Layout>
-  <main class="stage">
-    <ModelCloud client:load src="/me.glb" />
+  <div class="model-bg" aria-hidden="true">
+    <ModelCloud client:load src="/me.glb" lockLook={true} />
+  </div>
+
+  <nav class="nav">
+    <a class="brand" href="#top"><span class="dot"></span>thathsara<span class="ext">.dev</span></a>
+    <div class="links">
+      {nav.map((n) => <a href={`#${n.id}`}>{n.label}</a>)}
+    </div>
+  </nav>
+
+  <main class="content">
+    <!-- INTRO -->
+    <section id="top" class="panel hero">
+      <p class="eyebrow"><span class="stat">available for work</span> · software engineer</p>
+      <h1 class="name">Thathsara <span class="em">Madusha</span></h1>
+      <p class="lede">
+        I build at the seam between <span class="k">machine learning</span> and
+        <span class="s">cloud security</span> — models that learn, and systems that stay safe while they do.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="#work">view work</a>
+        <a class="btn" href="#contact">get in touch</a>
+      </div>
+      <div class="scroll-hint">scroll <span>↓</span></div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="panel">
+      <span class="kicker">/ about</span>
+      <h2>Engineer, end to end.</h2>
+      <p>
+        I like the whole stack of a hard problem: the data and the model, the service that serves it,
+        and the security posture around all of it. The figure beside this text is rendered live in your
+        browser — ninety thousand points sampled from a 3D scan and spun by your scroll.
+      </p>
+      <p>
+        My work lives where reliability matters: detection systems, ML pipelines, and the cloud
+        infrastructure that has to be both fast and defensible. I care about typed interfaces, honest
+        observability, and code that the next person can read.
+      </p>
+    </section>
+
+    <!-- FOCUS -->
+    <section id="focus" class="panel">
+      <span class="kicker">/ focus</span>
+      <h2>What I work on.</h2>
+      <div class="cards">
+        {focus.map((f) => (
+          <article class="card">
+            <h3>{f.k}</h3>
+            <p>{f.d}</p>
+            <ul class="tags">{f.tags.map((t) => <li>{t}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section id="work" class="panel">
+      <span class="kicker">/ selected work</span>
+      <h2>Things I've built.</h2>
+      <div class="work-list">
+        {work.map((w) => (
+          <article class="work-item">
+            <span class="num">{w.n}</span>
+            <div>
+              <h3>{w.title}</h3>
+              <p>{w.desc}</p>
+              <ul class="meta">{w.meta.map((m) => <li>{m}</li>)}</ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- PATH -->
+    <section id="path" class="panel">
+      <span class="kicker">/ path</span>
+      <h2>How I got here.</h2>
+      <ol class="timeline">
+        {path.map((p) => (
+          <li class={p.cur ? 'cur' : ''}>
+            <span class="when">{p.when}</span>
+            <h3>{p.role} <span class="at">· {p.at}</span></h3>
+            <p>{p.note}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="panel contact">
+      <span class="kicker">/ contact</span>
+      <h2>Let's build something.</h2>
+      <p>Open to interesting problems in ML, security, and platform engineering.</p>
+      <div class="contact-links">
+        <a href="mailto:thathsaramadhhusha@gmail.com">email</a>
+        <a href="https://github.com/" target="_blank" rel="noopener">github</a>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener">linkedin</a>
+      </div>
+      <footer>© {new Date().getFullYear()} Thathsara Madusha — rendered live with three.js</footer>
+    </section>
   </main>
 </Layout>
 
 <style>
-  .stage {
+  /* Pinned 3D model — right half on desktop, full-bleed backdrop on mobile */
+  .model-bg {
     position: fixed;
-    inset: 0;
-    background: radial-gradient(1100px 800px at 50% 45%, #0e131c, var(--bg-0) 72%);
+    top: 0;
+    right: 0;
+    width: 52vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+  /* let the canvas itself receive drag while the rest stays click-through */
+  .model-bg :global(canvas) { pointer-events: auto; }
+
+  /* Top navigation */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px;
+    background: linear-gradient(var(--bg-0), transparent);
+    font-size: 12px;
+  }
+  .brand {
+    color: var(--amber); text-decoration: none; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+  }
+  .brand .ext { color: var(--fg-mute); font-weight: 400; }
+  .brand .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--mint); box-shadow: 0 0 8px var(--mint);
+    animation: pulse 2s infinite;
+  }
+  .nav .links { display: flex; gap: 18px; }
+  .nav .links a {
+    color: var(--fg-mute); text-decoration: none; transition: color 140ms;
+  }
+  .nav .links a:hover { color: var(--fg); }
+
+  /* Scrolling content column — left half on desktop */
+  .content {
+    position: relative;
+    z-index: 2;
+    width: min(52%, 720px);
+    padding: 0 28px;
+  }
+
+  .panel {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 96px 0;
+    gap: 14px;
+  }
+
+  .kicker {
+    font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--amber);
+  }
+  .panel h2 {
+    font-family: var(--serif);
+    font-size: clamp(30px, 4.5vw, 52px);
+    line-height: 1.02;
+    margin: 4px 0 8px;
+    font-weight: 400; color: var(--fg);
+  }
+  .panel p {
+    color: var(--fg-soft); font-size: 14.5px; line-height: 1.7; max-width: 52ch; margin: 0;
+  }
+
+  /* Hero */
+  .hero .eyebrow {
+    font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--fg-mute); display: flex; align-items: center; gap: 10px;
+  }
+  .hero .eyebrow .stat { display: inline-flex; align-items: center; gap: 7px; color: var(--mint); }
+  .hero .eyebrow .stat::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--mint); box-shadow: 0 0 7px var(--mint);
+  }
+  .name {
+    font-family: var(--serif);
+    font-size: clamp(52px, 8vw, 104px);
+    line-height: 0.92; letter-spacing: -0.02em;
+    margin: 6px 0 18px; color: var(--fg); font-weight: 400;
+  }
+  .name .em { font-style: italic; color: var(--amber); }
+  .lede { font-size: 16.5px !important; max-width: 46ch !important; }
+  .lede .k { color: var(--amber); }
+  .lede .s { color: var(--mint); }
+
+  .cta { display: flex; gap: 12px; margin-top: 26px; }
+  .btn {
+    padding: 10px 20px; border-radius: 3px;
+    border: 1px solid var(--line-strong);
+    color: var(--fg-soft); text-decoration: none; font-size: 12px;
+    letter-spacing: 0.04em; transition: all 160ms;
+  }
+  .btn:hover { border-color: var(--amber); color: var(--fg); }
+  .btn.primary { background: var(--amber); color: var(--bg-0); border-color: var(--amber); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.08); }
+
+  .scroll-hint {
+    margin-top: 48px; font-size: 10.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--fg-mute);
+  }
+  .scroll-hint span { display: inline-block; animation: bob 1.6s ease-in-out infinite; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+  /* Focus cards */
+  .cards { display: grid; gap: 12px; margin-top: 12px; }
+  .card {
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg-1) 78%, transparent);
+    backdrop-filter: blur(6px);
+    border-radius: 4px; padding: 16px 18px; transition: border-color 160ms;
+  }
+  .card:hover { border-color: var(--line-strong); }
+  .card h3 {
+    margin: 0 0 6px; font-size: 13px; color: var(--mint);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .card p { font-size: 13px; }
+  .tags, .meta { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 12px 0 0; }
+  .tags li, .meta li {
+    font-size: 10px; padding: 2px 8px; border-radius: 2px;
+    background: var(--bg-3); color: var(--fg-soft); letter-spacing: 0.04em;
+  }
+
+  /* Work list */
+  .work-list { display: flex; flex-direction: column; margin-top: 8px; }
+  .work-item {
+    display: grid; grid-template-columns: 48px 1fr; gap: 14px;
+    padding: 22px 0; border-top: 1px solid var(--line);
+  }
+  .work-item .num { font-family: var(--serif); font-size: 22px; color: var(--amber); }
+  .work-item h3 { margin: 0 0 6px; font-size: 17px; color: var(--fg); font-weight: 600; }
+  .work-item p { font-size: 13px; }
+
+  /* Timeline */
+  .timeline { list-style: none; margin: 12px 0 0; padding-left: 26px; border-left: 1px solid var(--line); }
+  .timeline li { position: relative; padding: 0 0 26px; }
+  .timeline li::before {
+    content: ''; position: absolute; left: -32px; top: 6px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--bg-0); border: 2px solid var(--amber);
+  }
+  .timeline li.cur::before { background: var(--amber); box-shadow: 0 0 12px var(--amber); animation: pulse 1.6s infinite; }
+  .timeline .when {
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-mute);
+  }
+  .timeline h3 { margin: 4px 0 4px; font-size: 15px; color: var(--fg); font-weight: 600; }
+  .timeline h3 .at { color: var(--amber); font-weight: 400; }
+  .timeline p { font-size: 12.5px; }
+
+  /* Contact */
+  .contact-links { display: flex; gap: 20px; margin-top: 22px; }
+  .contact-links a {
+    color: var(--fg); text-decoration: none; font-size: 14px;
+    border-bottom: 1px solid var(--line-strong); padding-bottom: 2px; transition: border-color 160ms, color 160ms;
+  }
+  .contact-links a:hover { color: var(--amber); border-color: var(--amber); }
+  .contact footer { margin-top: 56px; font-size: 10.5px; color: var(--fg-faint); }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Tablet / mobile: model becomes a faint backdrop, content goes full width */
+  @media (max-width: 900px) {
+    .model-bg { width: 100vw; opacity: 0.28; }
+    .model-bg :global(canvas) { pointer-events: none; }
+    .content { width: 100%; padding: 0 22px; }
+    .content::before {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background: linear-gradient(90deg, var(--bg-0) 30%, transparent);
+      pointer-events: none;
+    }
+    .panel { min-height: auto; padding: 80px 0; }
+    #top { min-height: 100vh; }
+    .nav .links { gap: 12px; font-size: 11px; }
+  }
+  @media (max-width: 560px) {
+    .nav .links a:nth-child(n+4) { display: none; }
   }
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { src = '/me.glb' }: { src?: string } = $props();
+  let { src = '/me.glb', lockLook = false }: { src?: string; lockLook?: boolean } = $props();
 
   let canvas = $state<HTMLCanvasElement | undefined>(undefined);
   let wrap = $state<HTMLDivElement | undefined>(undefined);
@@ -31,11 +31,22 @@
       const controls = new OrbitControls(camera, canvas);
       controls.enableDamping = true;
       controls.dampingFactor = 0.08;
-      controls.autoRotate = true;
-      controls.autoRotateSpeed = 0.9;
+      controls.autoRotate = false;
       controls.enablePan = false;
+      // when locked, the user can't orbit/zoom the camera by hand
+      controls.enableRotate = !lockLook;
+      controls.enableZoom = !lockLook;
 
       let points: any = null;
+
+      // Scroll drives the model: full-page progress → rotation + vertical parallax.
+      let scrollProgress = 0;
+      const onScroll = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        scrollProgress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
 
       const resize = () => {
         const w = wrap!.clientWidth, h = wrap!.clientHeight;
@@ -253,6 +264,11 @@
         if (points) {
           points.material.uniforms.uTime.value = t;
           points.material.uniforms.uSize.value = 0.009 + Math.sin(t * 1.5) * 0.001;
+          // scroll-linked spin (2+ turns over the page) plus a slow idle drift
+          const targetRotY = scrollProgress * Math.PI * 2.4 + t * 0.05;
+          points.rotation.y += (targetRotY - points.rotation.y) * 0.06;
+          // gentle bob + scroll parallax so the figure rises as you descend
+          points.position.y += ((Math.sin(t * 0.5) * 0.03 - scrollProgress * 0.25) - points.position.y) * 0.06;
         }
         controls.update();
         renderer.render(scene, camera);
@@ -264,6 +280,7 @@
         const prev = cleanupResize;
         return () => {
           prev?.();
+          window.removeEventListener('scroll', onScroll);
           cancelAnimationFrame(raf);
           renderer.dispose();
         };
@@ -311,5 +328,5 @@
     border: 2px solid var(--line-strong); border-top-color: var(--azure);
     border-radius: 50%; animation: spin 0.8s linear infinite;
   }
-  @keyframes j { to { transform: rotate(360deg); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
