@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { src = '/fixed.glb' }: { src?: string } = $props();
+  let { src = '/me.glb' }: { src?: string } = $props();
 
   let canvas = $state<HTMLCanvasElement | undefined>(undefined);
   let wrap = $state<HTMLDivElement | undefined>(undefined);
