@@ -58,6 +58,8 @@ const path = [
 ---
 
 <Layout>
+  <div class="scroll-progress" aria-hidden="true"><i></i></div>
+
   <div class="model-bg" aria-hidden="true">
     <ModelCloud client:load src="/me.glb" lockLook={true} />
   </div>
@@ -175,8 +177,32 @@ const path = [
     z-index: 0;
     pointer-events: none;
   }
-  /* let the canvas itself receive drag while the rest stays click-through */
-  .model-bg :global(canvas) { pointer-events: auto; }
+  /* soft halo so the figure reads as lit, not floating in void */
+  .model-bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(closest-side at 50% 50%,
+      rgba(232, 179, 74, 0.10),
+      rgba(122, 162, 247, 0.05) 42%,
+      transparent 70%);
+    pointer-events: none;
+  }
+  /* manual look is locked, so no drag affordance is needed */
+  .model-bg :global(canvas) { pointer-events: none; cursor: default; }
+
+  /* Thin scroll-progress bar (CSS scroll-driven; degrades to hidden) */
+  .scroll-progress {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 2px; z-index: 60; pointer-events: none;
+  }
+  .scroll-progress i {
+    display: block; height: 100%; width: 100%;
+    transform-origin: 0 50%; transform: scaleX(0);
+    background: linear-gradient(90deg, var(--amber), var(--mint));
+    animation: progress linear;
+    animation-timeline: scroll(root);
+  }
+  @keyframes progress { to { transform: scaleX(1); } }
 
   /* Top navigation */
   .nav {
@@ -203,6 +229,7 @@ const path = [
     color: var(--fg-mute); text-decoration: none; transition: color 140ms;
   }
   .nav .links a:hover { color: var(--fg); }
+  .nav .links a.active { color: var(--amber); }
 
   /* Scrolling content column — left half on desktop */
   .content {
@@ -350,3 +377,21 @@ const path = [
     .nav .links a:nth-child(n+4) { display: none; }
   }
 </style>
+
+<script>
+  // Scrollspy: highlight the nav link for the section currently in view.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.nav .links a')];
+  const byId = new Map(links.map((a) => [a.getAttribute('href')!.slice(1), a]));
+  const obs = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          links.forEach((l) => l.classList.remove('active'));
+          byId.get((e.target as HTMLElement).id)?.classList.add('active');
+        }
+      }
+    },
+    { rootMargin: '-45% 0px -45% 0px' },
+  );
+  document.querySelectorAll('main.content section[id]').forEach((s) => obs.observe(s));
+</script>
