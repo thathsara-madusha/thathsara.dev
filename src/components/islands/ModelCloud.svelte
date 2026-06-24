@@ -16,6 +16,7 @@
     (async () => {
       const THREE = await import('three');
       const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
+      const { MeshoptDecoder } = await import('three/examples/jsm/libs/meshopt_decoder.module.js');
       const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
       if (disposed) return;
 
@@ -144,6 +145,7 @@
       let introActive = false, introT = 0;
 
       const loader = new GLTFLoader();
+      loader.setMeshoptDecoder(MeshoptDecoder);
       loader.load(
         src,
         (gltf: any) => {
