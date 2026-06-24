@@ -163,9 +163,13 @@
           const { positions: arr, normals: nrm } = samplePoints(meshes, 90000);
           basePositions = arr;                // pristine target — never mutated
           const drawArr = arr.slice();        // separate buffer the intro animates into
+          // per-point random phase so each dot twinkles independently
+          const seeds = new Float32Array(arr.length / 3);
+          for (let i = 0; i < seeds.length; i++) seeds[i] = Math.random() * Math.PI * 2;
           const geo = new THREE.BufferGeometry();
           geo.setAttribute('position', new THREE.BufferAttribute(drawArr, 3));
           geo.setAttribute('aNormal', new THREE.BufferAttribute(nrm, 3));
+          geo.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
           // Custom point shader: size-attenuated white dots. Every sampled point
           // is drawn equally (front and back surface alike) so the full volume
           // reads as an even white particle cloud, matching the Tripo look.
@@ -175,6 +179,7 @@
               uScale: { value: renderer.domElement.height * 0.5 },
               uMap: { value: sprite },
               uColor: { value: new THREE.Color(0xffffff) },
+              uTime: { value: 0 },
             },
             transparent: true,
             depthWrite: false,
@@ -182,19 +187,25 @@
             vertexShader: `
               uniform float uSize;
               uniform float uScale;
+              uniform float uTime;
+              attribute float aSeed;
+              varying float vTw;
               void main() {
+                // independent per-point twinkle — never touches position
+                vTw = 0.65 + 0.35 * sin(uTime * 2.2 + aSeed);
                 vec4 mv = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = uSize * (uScale / -mv.z);
+                gl_PointSize = uSize * (uScale / -mv.z) * (0.85 + 0.3 * vTw);
                 gl_Position = projectionMatrix * mv;
               }
             `,
             fragmentShader: `
               uniform sampler2D uMap;
               uniform vec3 uColor;
+              varying float vTw;
               void main() {
                 vec4 tex = texture2D(uMap, gl_PointCoord);
                 if (tex.a < 0.02) discard;
-                gl_FragColor = vec4(uColor, tex.a);
+                gl_FragColor = vec4(uColor, tex.a * vTw);
               }
             `,
           });
@@ -237,7 +248,10 @@
           points.geometry.attributes.position.needsUpdate = true;
           if (introT >= 1) introActive = false;
         }
-        if (points) points.material.uniforms.uSize.value = 0.009 + Math.sin(t * 1.5) * 0.001;
+        if (points) {
+          points.material.uniforms.uTime.value = t;
+          points.material.uniforms.uSize.value = 0.009 + Math.sin(t * 1.5) * 0.001;
+        }
         controls.update();
         renderer.render(scene, camera);
         raf = requestAnimationFrame(tick);
