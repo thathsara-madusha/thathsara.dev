@@ -161,9 +161,10 @@
           root.traverse((o: any) => { if (o.isMesh && o.geometry) meshes.push(o); });
 
           const { positions: arr, normals: nrm } = samplePoints(meshes, 90000);
-          basePositions = arr;
+          basePositions = arr;                // pristine target — never mutated
+          const drawArr = arr.slice();        // separate buffer the intro animates into
           const geo = new THREE.BufferGeometry();
-          geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+          geo.setAttribute('position', new THREE.BufferAttribute(drawArr, 3));
           geo.setAttribute('aNormal', new THREE.BufferAttribute(nrm, 3));
           // Custom point shader: size-attenuated white dots. Every sampled point
           // is drawn equally (front and back surface alike) so the full volume
@@ -269,9 +270,6 @@
       <span>{status}</span>
     </div>
   {/if}
-  <div class="gizmo" aria-hidden="true">
-    <span class="ax x">X</span><span class="ax y">Y</span><span class="ax z">Z</span><span class="dot"></span>
-  </div>
 </div>
 
 <style>
@@ -297,12 +295,5 @@
     border: 2px solid var(--line-strong); border-top-color: var(--azure);
     border-radius: 50%; animation: spin 0.8s linear infinite;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .gizmo { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; pointer-events: none; opacity: 0.8; }
-  .ax { position: absolute; font-size: 10px; font-weight: 700; font-family: var(--mono); }
-  .x { left: 0; top: 50%; transform: translateY(-50%); color: var(--coral); }
-  .y { left: 50%; top: 0; transform: translateX(-50%); color: var(--mint); }
-  .z { right: 2px; bottom: 2px; color: var(--azure); }
-  .dot { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%; background: var(--fg-soft); }
+  @keyframes j { to { transform: rotate(360deg); } }
 </style>
