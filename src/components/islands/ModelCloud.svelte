@@ -14,9 +14,9 @@
     let cleanupResize: (() => void) | undefined;
 
     (async () => {
-      const THREE = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js');
-      const { GLTFLoader } = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/loaders/GLTFLoader.js');
-      const { OrbitControls } = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/controls/OrbitControls.js');
+      const THREE = await import('three');
+      const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
+      const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
       if (disposed) return;
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -34,11 +34,14 @@
       controls.autoRotateSpeed = 0.9;
       controls.enablePan = false;
 
+      let points: any = null;
+
       const resize = () => {
         const w = wrap!.clientWidth, h = wrap!.clientHeight;
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
+        if (points) points.material.uniforms.uScale.value = renderer.domElement.height * 0.5;
       };
       window.addEventListener('resize', resize);
       cleanupResize = () => window.removeEventListener('resize', resize);
@@ -50,20 +53,38 @@
       const g = sc.getContext('2d')!;
       const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
       grad.addColorStop(0.0, 'rgba(255,255,255,1)');
-      grad.addColorStop(0.25, 'rgba(180,220,255,0.95)');
-      grad.addColorStop(0.55, 'rgba(120,170,255,0.45)');
-      grad.addColorStop(1.0, 'rgba(90,140,255,0)');
+      grad.addColorStop(0.25, 'rgba(245,248,255,0.95)');
+      grad.addColorStop(0.55, 'rgba(225,235,250,0.45)');
+      grad.addColorStop(1.0, 'rgba(215,228,250,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
       const sprite = new THREE.CanvasTexture(sc);
       sprite.colorSpace = THREE.SRGBColorSpace;
 
       // area-weighted surface sampler → even point cloud
+      // Triangles are stored in flat typed arrays (no per-tri object/Vector3 churn)
+      // and selected via a cumulative-area prefix sum + binary search, so cost is
+      // O(triCount + targetCount·log triCount) instead of O(targetCount·triCount).
       const samplePoints = (meshes: any[], targetCount: number) => {
-        const tris: any[] = [];
-        let totalArea = 0;
+        const out = new Float32Array(targetCount * 3);
+        const nrm = new Float32Array(targetCount * 3);
+
+        let triCount = 0;
+        for (const mesh of meshes) {
+          const pos = mesh.geometry.attributes.position;
+          if (!pos) continue;
+          const index = mesh.geometry.index;
+          triCount += index ? index.count / 3 : pos.count / 3;
+        }
+        if (!triCount) return { positions: out, normals: nrm };
+
+        const triVerts = new Float32Array(triCount * 9); // 3 verts × xyz per triangle
+        const cumArea = new Float64Array(triCount);       // prefix sum of areas
         const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
         const ab = new THREE.Vector3(), ac = new THREE.Vector3(), cross = new THREE.Vector3();
+
+        let ti = 0;
+        let totalArea = 0;
         for (const mesh of meshes) {
           const geo = mesh.geometry;
           const pos = geo.attributes.position;
@@ -71,8 +92,8 @@
           mesh.updateWorldMatrix(true, false);
           const m = mesh.matrixWorld;
           const index = geo.index;
-          const triCount = index ? index.count / 3 : pos.count / 3;
-          for (let t = 0; t < triCount; t++) {
+          const count = index ? index.count / 3 : pos.count / 3;
+          for (let t = 0; t < count; t++) {
             let a, b, c;
             if (index) { a = index.getX(t * 3); b = index.getX(t * 3 + 1); c = index.getX(t * 3 + 2); }
             else { a = t * 3; b = t * 3 + 1; c = t * 3 + 2; }
@@ -80,30 +101,44 @@
             vB.fromBufferAttribute(pos, b).applyMatrix4(m);
             vC.fromBufferAttribute(pos, c).applyMatrix4(m);
             ab.subVectors(vB, vA); ac.subVectors(vC, vA);
-            const area = cross.crossVectors(ab, ac).length() * 0.5;
-            if (area <= 0) continue;
-            totalArea += area;
-            tris.push({ a: vA.clone(), b: vB.clone(), c: vC.clone(), area });
+            totalArea += cross.crossVectors(ab, ac).length() * 0.5;
+            const o = ti * 9;
+            triVerts[o] = vA.x; triVerts[o + 1] = vA.y; triVerts[o + 2] = vA.z;
+            triVerts[o + 3] = vB.x; triVerts[o + 4] = vB.y; triVerts[o + 5] = vB.z;
+            triVerts[o + 6] = vC.x; triVerts[o + 7] = vC.y; triVerts[o + 8] = vC.z;
+            cumArea[ti] = totalArea;
+            ti++;
           }
         }
-        const out = new Float32Array(targetCount * 3);
-        if (!tris.length) return out;
-        const p = new THREE.Vector3();
-        const e1 = new THREE.Vector3(), e2 = new THREE.Vector3();
+        if (totalArea <= 0) return { positions: out, normals: nrm };
+
         for (let i = 0; i < targetCount; i++) {
-          let r = Math.random() * totalArea;
-          let tri = tris[tris.length - 1];
-          for (let k = 0; k < tris.length; k++) { r -= tris[k].area; if (r <= 0) { tri = tris[k]; break; } }
+          const r = Math.random() * totalArea;
+          // binary search: first triangle whose cumulative area ≥ r
+          let lo = 0, hi = ti - 1;
+          while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (cumArea[mid] < r) lo = mid + 1; else hi = mid;
+          }
+          const o = lo * 9;
           let u = Math.random(), v = Math.random();
           if (u + v > 1) { u = 1 - u; v = 1 - v; }
-          e1.subVectors(tri.b, tri.a); e2.subVectors(tri.c, tri.a);
-          p.copy(tri.a).addScaledVector(e1, u).addScaledVector(e2, v);
-          out[i * 3] = p.x; out[i * 3 + 1] = p.y; out[i * 3 + 2] = p.z;
+          const ax = triVerts[o], ay = triVerts[o + 1], az = triVerts[o + 2];
+          const e1x = triVerts[o + 3] - ax, e1y = triVerts[o + 4] - ay, e1z = triVerts[o + 5] - az;
+          const e2x = triVerts[o + 6] - ax, e2y = triVerts[o + 7] - ay, e2z = triVerts[o + 8] - az;
+          out[i * 3]     = ax + e1x * u + e2x * v;
+          out[i * 3 + 1] = ay + e1y * u + e2y * v;
+          out[i * 3 + 2] = az + e1z * u + e2z * v;
+          // geometric (face) normal = e1 × e2, used to fade away back-facing points
+          let nx = e1y * e2z - e1z * e2y;
+          let ny = e1z * e2x - e1x * e2z;
+          let nz = e1x * e2y - e1y * e2x;
+          const nl = Math.hypot(nx, ny, nz) || 1;
+          nrm[i * 3] = nx / nl; nrm[i * 3 + 1] = ny / nl; nrm[i * 3 + 2] = nz / nl;
         }
-        return out;
+        return { positions: out, normals: nrm };
       };
 
-      let points: any = null;
       let basePositions: Float32Array | null = null;
       let scattered: Float32Array | null = null;
       let introActive = false, introT = 0;
@@ -125,14 +160,49 @@
           const meshes: any[] = [];
           root.traverse((o: any) => { if (o.isMesh && o.geometry) meshes.push(o); });
 
-          const arr = samplePoints(meshes, 90000);
+          const { positions: arr, normals: nrm } = samplePoints(meshes, 90000);
           basePositions = arr;
           const geo = new THREE.BufferGeometry();
           geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
-          const mat = new THREE.PointsMaterial({
-            size: 0.012, map: sprite, transparent: true, depthWrite: false,
-            blending: THREE.AdditiveBlending, sizeAttenuation: true,
-            color: new THREE.Color(0x9fc4ff),
+          geo.setAttribute('aNormal', new THREE.BufferAttribute(nrm, 3));
+          // Custom point shader: replicates three's size-attenuation, but fades out
+          // back-facing points (via the surface normal) so the front of the face
+          // reads instead of the whole closed surface summing into a glowing blob.
+          const mat = new THREE.ShaderMaterial({
+            uniforms: {
+              uSize: { value: 0.012 },
+              uScale: { value: renderer.domElement.height * 0.5 },
+              uMap: { value: sprite },
+              uColor: { value: new THREE.Color(0xf2f6ff) },
+            },
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            vertexShader: `
+              attribute vec3 aNormal;
+              uniform float uSize;
+              uniform float uScale;
+              varying float vFacing;
+              void main() {
+                vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                vec3 n = normalize(normalMatrix * aNormal);
+                vec3 viewDir = normalize(-mv.xyz);
+                vFacing = dot(n, viewDir);
+                gl_PointSize = uSize * (uScale / -mv.z);
+                gl_Position = projectionMatrix * mv;
+              }
+            `,
+            fragmentShader: `
+              uniform sampler2D uMap;
+              uniform vec3 uColor;
+              varying float vFacing;
+              void main() {
+                float facing = smoothstep(-0.15, 0.45, vFacing);
+                if (facing <= 0.001) discard;
+                vec4 tex = texture2D(uMap, gl_PointCoord);
+                gl_FragColor = vec4(uColor, 1.0) * tex * facing;
+              }
+            `,
           });
           points = new THREE.Points(geo, mat);
           scene.add(points);
@@ -173,7 +243,7 @@
           points.geometry.attributes.position.needsUpdate = true;
           if (introT >= 1) introActive = false;
         }
-        if (points) points.material.size = 0.011 + Math.sin(t * 1.5) * 0.0015;
+        if (points) points.material.uniforms.uSize.value = 0.011 + Math.sin(t * 1.5) * 0.0015;
         controls.update();
         renderer.render(scene, camera);
         raf = requestAnimationFrame(tick);
