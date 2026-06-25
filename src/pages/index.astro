@@ -13,64 +13,70 @@ const nav = [
 
 const focus = [
   {
-    k: "machine learning",
-    d: "Training, evaluating and shipping models — from data pipelines to inference services that hold up under real traffic.",
-    tags: ["PyTorch", "Transformers", "MLOps"],
+    k: "engineering",
+    d: "Building software end to end — from Go and Rust backends to React/TypeScript interfaces. I care about the details most people skip past.",
+    tags: ["Go", "Rust", "TypeScript"],
   },
   {
-    k: "cloud security",
-    d: "Threat modelling, IAM hardening and detection engineering across AWS and GCP. Security that ships with the product, not after it.",
-    tags: ["AWS", "IAM", "Detection"],
+    k: "systems & cloud",
+    d: "Designing the moving parts so they actually fit: clear interfaces, sensible data, and infrastructure you can reason about.",
+    tags: ["Kubernetes", "Terraform", "AWS"],
   },
   {
-    k: "platform engineering",
-    d: "Typed, observable services and the CI/CD that keeps them honest. Infra-as-code, containers, and clean interfaces.",
-    tags: ["TypeScript", "Go", "Terraform"],
+    k: "reliability",
+    d: "Shipping is the start, not the finish. I like the unglamorous DevOps work that makes things observable, testable, and hard to break.",
+    tags: ["Observability", "CI/CD", "Grafana"],
   },
 ];
 
 const work = [
   {
     n: "01",
-    title: "Anomaly detection pipeline",
-    desc: "Streaming detection over cloud audit logs — surfaces credential abuse and lateral movement minutes after it starts.",
-    meta: ["Python", "Kafka", "AWS"],
+    title: "Seer",
+    desc: "A GPT-style transformer language model built end to end in Rust on HuggingFace's Candle — BPE tokenizer, multi-head causal self-attention, and the full training pipeline from scratch.",
+    meta: ["Rust", "Candle", "ML"],
   },
   {
     n: "02",
-    title: "Point-cloud renderer",
-    desc: "The figure you are looking at — a GPU point sampler that turns any glTF mesh into an even, twinkling particle cloud.",
-    meta: ["Three.js", "WebGL", "GLSL"],
+    title: "CareerSync",
+    desc: "A cloud-native recruitment platform that processed 12,000+ résumé PDFs with OpenAI — scalable architecture deployed on Kubernetes via Terraform.",
+    meta: ["React", "Laravel", "Kubernetes"],
   },
   {
     n: "03",
-    title: "Policy-as-code guardrails",
-    desc: "Terraform modules and OPA policies that block misconfigured buckets and over-broad roles before they reach prod.",
-    meta: ["Terraform", "OPA", "GCP"],
+    title: "Home Lab",
+    desc: "A self-hosted infrastructure lab exposed to the public internet — a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
+    meta: ["Kubernetes", "Nginx", "Prometheus"],
+  },
+  {
+    n: "04",
+    title: "Point-cloud renderer",
+    desc: "The figure you are looking at — a GPU point sampler that turns any glTF mesh into an even, twinkling particle cloud.",
+    meta: ["Three.js", "WebGL", "GLSL"],
   },
 ];
 
 const path = [
   {
     when: "now",
-    role: "Software Engineer",
-    at: "ML × Cloud Security",
+    role: "Intern Software Engineer",
+    at: "WSO2",
     cur: true,
-    note: "Building detection systems and the ML behind them.",
+    note: "Shipping a full-stack self-service storage feature — Go backend services and a React/TypeScript marketplace UI, delivered across six codebases and three teams.",
   },
   {
-    when: "before",
-    role: "Backend Engineer",
-    at: "Platform",
+    when: "2022 — 2024",
+    role: "Freelance Web Developer",
+    at: "Remote",
     cur: false,
-    note: "Typed services, CI/CD, and observability at scale.",
+    note: "Delivered Laravel CMS and web apps for clients — owning backend architecture, deployment, and SEO performance.",
   },
   {
-    when: "start",
-    role: "Computer Science",
-    at: "University",
+    when: "2023 — 2027",
+    role: "BSc (Hons) Computer Science",
+    at: "UCSC",
     cur: false,
-    note: "Foundations — systems, algorithms, and a lot of curiosity.",
+    note: "Honours degree at the University of Colombo — GPA 3.66 and two Director's List awards for academic excellence.",
   },
 ];
 ---
@@ -95,13 +101,13 @@ const path = [
     <!-- INTRO -->
     <section id="top" class="panel hero">
       <p class="eyebrow">
-        <span class="stat">available for work</span> · software engineer
+        <span class="stat">available for work</span> · software engineer &amp; devops
       </p>
       <h1 class="name">Thathsara <span class="em">Madusha</span></h1>
       <p class="lede">
-        I build at the seam between <span class="k">machine learning</span> and
-        <span class="s">cloud security</span> — models that learn, and systems that
-        stay safe while they do.
+        Computer science undergraduate building at the intersection of
+        <span class="k">systems</span> and <span class="s">cloud</span> —
+        turning hard problems into software that feels effortless to use.
       </p>
       <div class="cta">
         <a class="btn primary" href="#work">view work</a>
@@ -115,16 +121,17 @@ const path = [
       <span class="kicker">/ about</span>
       <h2>Engineer, end to end.</h2>
       <p>
-        I like the whole stack of a hard problem: the data and the model, the
-        service that serves it, and the security posture around all of it. The
-        figure beside this text is rendered live in your browser — ninety
-        thousand points sampled from a 3D scan and spun by your scroll.
+        I'm a computer science undergraduate at the University of Colombo and a
+        software engineer at WSO2, working from Go and Rust backends to
+        Kubernetes infrastructure. The figure beside this text is rendered live
+        in your browser — ninety thousand points sampled from a 3D scan and spun
+        by your scroll.
       </p>
       <p>
-        My work lives where reliability matters: detection systems, ML
-        pipelines, and the cloud infrastructure that has to be both fast and
-        defensible. I care about typed interfaces, honest observability, and
-        code that the next person can read.
+        My work lives where craft meets reliability — clear interfaces, honest
+        observability, and code the next person can actually read. On the side I
+        research DDoS-aware autoscaling and deep-packet-inspection evasion. I'd
+        rather build one thing that holds up than ten that don't.
       </p>
     </section>
 
@@ -196,14 +203,16 @@ const path = [
     <section id="contact" class="panel contact">
       <span class="kicker">/ contact</span>
       <h2>Let's build something.</h2>
-      <p>
-        Open to interesting problems in ML, security, and platform engineering.
-      </p>
+      <p>Open to interesting problems and good people to build them with.</p>
       <div class="contact-links">
         <a href="mailto:thathsaramadhhusha@gmail.com">email</a>
-        <a href="https://github.com/" target="_blank" rel="noopener">github</a>
-        <a href="https://www.linkedin.com/" target="_blank" rel="noopener"
-          >linkedin</a
+        <a href="https://github.com/nova9" target="_blank" rel="noopener"
+          >github</a
+        >
+        <a
+          href="https://www.linkedin.com/in/thathsara-m"
+          target="_blank"
+          rel="noopener">linkedin</a
         >
       </div>
       <footer>
