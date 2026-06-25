@@ -1,9 +1,10 @@
 <script lang="ts">
   let {
     src = '/me.glb',
+    hiSrc = '/fixed.glb',
     lockLook = false,
     shiftX = 0,
-  }: { src?: string; lockLook?: boolean; shiftX?: number } = $props();
+  }: { src?: string; hiSrc?: string; lockLook?: boolean; shiftX?: number } = $props();
 
   let canvas = $state<HTMLCanvasElement | undefined>(undefined);
   let wrap = $state<HTMLDivElement | undefined>(undefined);
@@ -22,13 +23,24 @@
       const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
       const { MeshoptDecoder } = await import('three/examples/jsm/libs/meshopt_decoder.module.js');
       const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
+      const { RoomEnvironment } = await import('three/examples/jsm/environments/RoomEnvironment.js');
       if (disposed) return;
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setClearColor(0x000000, 0);
+      // tone mapping + neutral env light so the textured model reads correctly
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
 
       const scene = new THREE.Scene();
+      // lighting for the real (textured) model that replaces the point cloud
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x222233, 1.0));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+      keyLight.position.set(2, 3, 4);
+      scene.add(keyLight);
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
       const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
       // Offsetting camera + target equally along x shifts the model on screen
       // (positive shiftX → model toward the right) without skewing perspective.
@@ -46,6 +58,10 @@
       controls.enableZoom = !lockLook;
 
       let points: any = null;
+      let actual: any = null; // the real textured model that replaces the cloud
+      let cloudShownAt = 0;   // timestamp the cloud became visible (min display time)
+      let swapTimer: ReturnType<typeof setTimeout> | undefined;
+      const MIN_CLOUD_MS = 5000; // keep the point cloud on screen at least this long
 
       // Scroll drives the model: full-page progress → rotation + vertical parallax.
       let scrollProgress = 0;
@@ -247,6 +263,48 @@
 
           status = 'ready';
           ready = true;
+          cloudShownAt = performance.now();
+
+          // Background-load the full textured model. Once it arrives, drop the
+          // point cloud and show the real lit/textured mesh in its place — but
+          // not before the cloud has been on screen for MIN_CLOUD_MS.
+          loader.load(
+            hiSrc,
+            (hi: any) => {
+              if (disposed) return;
+              const root = hi.scene;
+              const hbox = new THREE.Box3().setFromObject(root);
+              const hsize = hbox.getSize(new THREE.Vector3());
+              const hcenter = hbox.getCenter(new THREE.Vector3());
+              root.position.sub(hcenter);
+              root.scale.setScalar(2.4 / Math.max(hsize.x, hsize.y, hsize.z));
+
+              const swap = () => {
+                if (disposed) return;
+                // group wrapper: root holds centering+scale, group takes the
+                // scroll rotation / parallax so they don't fight each other
+                const group = new THREE.Group();
+                group.add(root);
+                if (points) { group.rotation.y = points.rotation.y; group.position.y = points.position.y; }
+                scene.add(group);
+                actual = group;
+
+                if (points) {
+                  scene.remove(points);
+                  points.geometry.dispose();
+                  points.material.dispose();
+                  points = null;
+                }
+                introActive = false;
+              };
+
+              const remaining = MIN_CLOUD_MS - (performance.now() - cloudShownAt);
+              if (remaining > 0) swapTimer = setTimeout(swap, remaining);
+              else swap();
+            },
+            undefined,
+            () => { /* keep the point cloud if the full model fails */ }
+          );
         },
         (e: any) => {
           if (e.lengthComputable) {
@@ -272,11 +330,15 @@
         if (points) {
           points.material.uniforms.uTime.value = t;
           points.material.uniforms.uSize.value = 0.009 + Math.sin(t * 1.5) * 0.001;
+        }
+        // scroll drives the cloud first, then the real model once it's swapped in
+        const obj = points ?? actual;
+        if (obj) {
           // scroll-linked spin (2+ turns over the page) plus a slow idle drift
           const targetRotY = scrollProgress * Math.PI * 2.4 + t * 0.05;
-          points.rotation.y += (targetRotY - points.rotation.y) * 0.06;
+          obj.rotation.y += (targetRotY - obj.rotation.y) * 0.06;
           // gentle bob + scroll parallax so the figure rises as you descend
-          points.position.y += ((Math.sin(t * 0.5) * 0.03 - scrollProgress * 0.25) - points.position.y) * 0.06;
+          obj.position.y += ((Math.sin(t * 0.5) * 0.03 - scrollProgress * 0.25) - obj.position.y) * 0.06;
         }
         controls.update();
         renderer.render(scene, camera);
@@ -289,6 +351,7 @@
         return () => {
           prev?.();
           window.removeEventListener('scroll', onScroll);
+          clearTimeout(swapTimer);
           cancelAnimationFrame(raf);
           renderer.dispose();
         };
