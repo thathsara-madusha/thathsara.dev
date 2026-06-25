@@ -48,12 +48,6 @@ const work = [
     desc: "A self-hosted infrastructure lab exposed to the public internet — a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
     meta: ["Kubernetes", "Nginx", "Prometheus"],
   },
-  {
-    n: "04",
-    title: "Point-cloud renderer",
-    desc: "The figure you are looking at — a GPU point sampler that turns any glTF mesh into an even, twinkling particle cloud.",
-    meta: ["Three.js", "WebGL", "GLSL"],
-  },
 ];
 
 const path = [
@@ -90,7 +84,9 @@ const path = [
 
   <nav class="nav">
     <a class="brand" href="#top">
-      <span class="dot"></span><span>thathsara<span class="ext">.dev</span></span></a
+      <span class="dot"></span><span
+        >thathsara<span class="ext">.dev</span></span
+      ></a
     >
     <div class="links">
       {nav.map((n) => <a href={`#${n.id}`}>{n.label}</a>)}
@@ -106,8 +102,8 @@ const path = [
       <h1 class="name">Thathsara <span class="em">Madusha</span></h1>
       <p class="lede">
         Computer science undergraduate building at the intersection of
-        <span class="k">systems</span> and <span class="s">cloud</span> —
-        turning hard problems into software that feels effortless to use.
+        <span class="k">systems</span> and <span class="s">cloud</span> — turning
+        hard problems into software that feels effortless to use.
       </p>
       <div class="cta">
         <a class="btn primary" href="#work">view work</a>
