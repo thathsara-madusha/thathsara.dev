@@ -14,7 +14,7 @@ const nav = [
 const focus = [
   {
     k: "engineering",
-    d: "Building software end to end — from Go and Rust backends to React/TypeScript interfaces. I care about the details most people skip past.",
+    d: "Building software end to end, from Go and Rust backends to React/TypeScript interfaces. I care about the details most people skip past.",
     tags: ["Go", "Rust", "TypeScript"],
   },
   {
@@ -33,25 +33,25 @@ const work = [
   {
     n: "01",
     title: "Seer",
-    desc: "A GPT-style transformer language model built end to end in Rust on HuggingFace's Candle — BPE tokenizer, multi-head causal self-attention, and the full training pipeline from scratch.",
+    desc: "A GPT-style transformer language model built end to end in Rust on HuggingFace's Candle: BPE tokenizer, multi-head causal self-attention, and the full training pipeline from scratch.",
     meta: ["Rust", "Candle", "ML"],
   },
   {
     n: "02",
     title: "CareerSync",
-    desc: "A cloud-native recruitment platform that processed 12,000+ résumé PDFs with OpenAI — scalable architecture deployed on Kubernetes via Terraform.",
+    desc: "A cloud-native recruitment platform that processed 12,000+ résumé PDFs with OpenAI, with a scalable architecture deployed on Kubernetes via Terraform.",
     meta: ["React", "Laravel", "Kubernetes"],
   },
   {
     n: "03",
     title: "Home Lab",
-    desc: "A self-hosted infrastructure lab exposed to the public internet — a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
+    desc: "A self-hosted infrastructure lab exposed to the public internet: a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
     meta: ["Kubernetes", "Nginx", "Prometheus"],
   },
   {
     n: "04",
     title: "thathsara.lk",
-    desc: "My personal site and writing space — a place to share projects, notes, and the occasional deep dive.",
+    desc: "My personal site and writing space, a place to share projects, notes, and the occasional deep dive.",
     meta: ["Web", "Personal"],
     link: "https://thathsara.lk",
   },
@@ -63,21 +63,21 @@ const path = [
     role: "Intern Software Engineer",
     at: "WSO2",
     cur: true,
-    note: "Shipping a full-stack self-service storage feature — Go backend services and a React/TypeScript marketplace UI, delivered across six codebases and three teams.",
+    note: "Shipping a full-stack self-service storage feature: Go backend services and a React/TypeScript marketplace UI, delivered across six codebases and three teams.",
   },
   {
-    when: "2022 — 2024",
+    when: "2022 - 2024",
     role: "Freelance Web Developer",
     at: "Remote",
     cur: false,
-    note: "Delivered Laravel CMS and web apps for clients — owning backend architecture, deployment, and SEO performance.",
+    note: "Delivered Laravel CMS and web apps for clients, owning backend architecture, deployment, and SEO performance.",
   },
   {
-    when: "2023 — 2027",
+    when: "2023 - 2027",
     role: "BSc (Hons) Computer Science",
     at: "UCSC",
     cur: false,
-    note: "Honours degree at the University of Colombo — GPA 3.66 and two Director's List awards for academic excellence.",
+    note: "Honours degree at the University of Colombo, GPA 3.66 and two Director's List awards for academic excellence.",
   },
 ];
 ---
@@ -109,12 +109,13 @@ const path = [
       <h1 class="name">Thathsara <span class="em">Madusha</span></h1>
       <p class="lede">
         Software engineer building at the intersection of{" "}
-        <span class="k">systems</span> and <span class="s">cloud</span> — turning
+        <span class="k">systems</span> and <span class="s">cloud</span>, turning
         hard problems into software that feels effortless to use.
       </p>
       <div class="cta">
         <a class="btn primary" href="#work">view work</a>
         <a class="btn" href="#contact">get in touch</a>
+        <button class="btn joke" id="jokeBtn" type="button">⚠️ do not click</button>
       </div>
       <div class="scroll-hint">scroll <span>↓</span></div>
     </section>
@@ -127,11 +128,11 @@ const path = [
         I'm a software engineer at WSO2 with a computer science background from
         the University of Colombo, working from Go and Rust backends to
         Kubernetes infrastructure. The figure beside this text is rendered live
-        in your browser — ninety thousand points sampled from a 3D scan and spun
+        in your browser: ninety thousand points sampled from a 3D scan and spun
         by your scroll.
       </p>
       <p>
-        My work lives where craft meets reliability — clear interfaces, honest
+        My work lives where craft meets reliability: clear interfaces, honest
         observability, and code the next person can actually read. On the side I
         research DDoS-aware autoscaling and deep-packet-inspection evasion. I'd
         rather build one thing that holds up than ten that don't.
@@ -225,16 +226,42 @@ const path = [
           target="_blank"
           rel="noopener">linkedin</a
         >
+        <a
+          href="https://www.instagram.com/_.thathsara/"
+          target="_blank"
+          rel="noopener">instagram</a
+        >
       </div>
       <footer>
-        © {new Date().getFullYear()} Thathsara Madusha — rendered live with three.js
+        © {new Date().getFullYear()} Thathsara Madusha, rendered live with three.js
       </footer>
     </section>
   </main>
+
+  <!-- "do not click": a harmless gag -->
+  <div class="joke-modal" id="jokeModal" aria-hidden="true">
+    <div class="joke-card" role="dialog" aria-modal="true" aria-label="gotcha">
+      <button class="joke-close" id="jokeClose" type="button" aria-label="close">×</button>
+      <div class="joke-reveal">
+        <svg class="joke-emoji" viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
+          <circle cx="32" cy="32" r="29" fill="#FFD166" stroke="#E6A700" stroke-width="2" />
+          <circle cx="23" cy="26" r="3.4" fill="#3a2e00" />
+          <circle cx="41" cy="26" r="3.4" fill="#3a2e00" />
+          <path d="M21 39c2.7 4.2 6.6 6.3 11 6.3s8.3-2.1 11-6.3" stroke="#3a2e00" stroke-width="3.2" stroke-linecap="round" />
+        </svg>
+        <h3>You really <em>can't</em> help yourself, huh?</h3>
+        <p>
+          Neither can I. That's exactly what happens when there's a hard
+          problem sitting in front of me. Curiosity wins every time.
+        </p>
+        <button class="btn primary" id="jokeOk" type="button">fair enough</button>
+      </div>
+    </div>
+  </div>
 </Layout>
 
 <style>
-  /* Pinned 3D model — right half on desktop, full-bleed backdrop on mobile */
+  /* Pinned 3D model: right half on desktop, full-bleed backdrop on mobile */
   /* full-viewport canvas so the scatter intro is never clipped; the model
      itself is pushed to the right via the component's shiftX prop */
   .model-bg {
@@ -339,7 +366,7 @@ const path = [
     color: var(--amber);
   }
 
-  /* Scrolling content column — left half on desktop */
+  /* Scrolling content column: left half on desktop */
   .content {
     position: relative;
     z-index: 2;
@@ -645,6 +672,104 @@ const path = [
     }
   }
 
+  /* Joke button + reveal modal */
+  .btn.joke {
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+    background: transparent;
+    color: var(--fg-soft);
+  }
+  .joke-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: color-mix(in srgb, var(--bg-0) 78%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .joke-modal.open {
+    display: flex;
+    animation: fade 180ms ease;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .joke-card {
+    position: relative;
+    max-width: 420px;
+    width: 100%;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-1);
+    border-radius: 8px;
+    padding: 32px 28px 28px;
+    text-align: center;
+    animation: pop 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  }
+  @keyframes pop {
+    from {
+      transform: scale(0.92);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  .joke-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: var(--fg-mute);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 140ms;
+  }
+  .joke-close:hover {
+    color: var(--fg);
+  }
+  .joke-emoji {
+    display: block;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    transform: rotate(180deg);
+  }
+  .joke-reveal h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--fg);
+    margin: 0 0 10px;
+  }
+  .joke-reveal h3 em {
+    color: var(--amber);
+    font-style: italic;
+  }
+  .joke-reveal p {
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--fg-soft);
+    margin: 0 auto 20px;
+    max-width: 36ch;
+  }
+  .joke-reveal .btn {
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-block;
+  }
+
   /* Tablet / mobile: model becomes a faint backdrop, content goes full width */
   @media (max-width: 900px) {
     .model-bg {
@@ -688,6 +813,9 @@ const path = [
       gap: 10px;
       font-size: 10px;
     }
+    .btn.joke {
+      display: none;
+    }
   }
 </style>
 
@@ -711,4 +839,24 @@ const path = [
   document
     .querySelectorAll("main.content section[id]")
     .forEach((s) => obs.observe(s));
+
+  // Joke "do not click" button: opens a harmless gotcha modal.
+  const modal = document.getElementById("jokeModal");
+  const openModal = () => {
+    modal?.classList.add("open");
+    modal?.setAttribute("aria-hidden", "false");
+  };
+  const closeModal = () => {
+    modal?.classList.remove("open");
+    modal?.setAttribute("aria-hidden", "true");
+  };
+  document.getElementById("jokeBtn")?.addEventListener("click", openModal);
+  document.getElementById("jokeClose")?.addEventListener("click", closeModal);
+  document.getElementById("jokeOk")?.addEventListener("click", closeModal);
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
 </script>
