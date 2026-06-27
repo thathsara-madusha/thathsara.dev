@@ -1,0 +1,174 @@
+---
+// Animated causal self-attention matrix for the "Seer" project.
+// Rows light up top→bottom: each query token attends only to itself and the
+// tokens before it (the causal mask), mirroring autoregressive generation.
+// Two ghost grids behind the live one imply multi-head attention.
+interface Props {
+  hideCaption?: boolean;
+  width?: number | string;
+}
+const { hideCaption = false, width } = Astro.props;
+
+const N = 8;
+const PITCH = 13;
+const CELL = 10;
+const X0 = 30;
+const Y0 = 16;
+
+// Lower triangle (key index <= query index) = the cells a causal model can see.
+const cells: { x: number; y: number; r: number; self: boolean; d: string }[] = [];
+for (let r = 0; r < N; r++) {
+  for (let c = 0; c <= r; c++) {
+    cells.push({
+      x: X0 + c * PITCH,
+      y: Y0 + r * PITCH,
+      r,
+      self: r === c,
+      d: `${(r * 0.14).toFixed(2)}s`,
+    });
+  }
+}
+const span = N * PITCH;
+
+const svgWidth = typeof width === "number" ? `${width}px` : width;
+---
+
+<figure class="seer-attn" aria-hidden="true">
+  <svg
+    viewBox="0 0 138 140"
+    role="img"
+    preserveAspectRatio="xMinYMid meet"
+    style={svgWidth ? `width:${svgWidth}` : undefined}
+  >
+    <!-- ghost grids: the other attention heads, stacked behind -->
+    <rect class="ghost" x={X0 - 14} y={Y0 - 14} width={span} height={span} rx="6" />
+    <rect class="ghost" x={X0 - 7} y={Y0 - 7} width={span} height={span} rx="6" />
+    <rect class="frame" x={X0} y={Y0} width={span} height={span} rx="6" />
+
+    <!-- masked future cells: faint outlines a causal model never reads -->
+    {
+      Array.from({ length: N }, (_, r) =>
+        Array.from({ length: N - 1 - r }, (_, k) => {
+          const c = r + 1 + k;
+          return (
+            <rect
+              class="mask"
+              x={X0 + c * PITCH + (PITCH - CELL) / 2}
+              y={Y0 + r * PITCH + (PITCH - CELL) / 2}
+              width={CELL}
+              height={CELL}
+              rx="2"
+            />
+          );
+        }),
+      )
+    }
+
+    <!-- attention weights that light up, row by row -->
+    {
+      cells.map((cell) => (
+        <rect
+          class={`cell${cell.self ? " self" : ""}`}
+          x={cell.x + (PITCH - CELL) / 2}
+          y={cell.y + (PITCH - CELL) / 2}
+          width={CELL}
+          height={CELL}
+          rx="2"
+          style={`--d:${cell.d}`}
+        />
+      ))
+    }
+
+    <text class="ax" x={X0 + span / 2} y={Y0 + span + 13}>keys · context</text>
+  </svg>
+  {!hideCaption && <figcaption>multi-head causal self-attention</figcaption>}
+</figure>
+
+<style>
+  .seer-attn {
+    margin: 16px 0 0;
+    padding-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .seer-attn svg {
+    width: 120px;
+    height: auto;
+    flex: none;
+    overflow: visible;
+  }
+  .seer-attn figcaption {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-mute);
+    line-height: 1.5;
+    max-width: 14ch;
+  }
+
+  .ghost {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+    opacity: 0.5;
+  }
+  .frame {
+    fill: color-mix(in srgb, var(--bg-1) 70%, transparent);
+    stroke: var(--line-strong);
+    stroke-width: 1;
+  }
+  .mask {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+    opacity: 0.4;
+  }
+  .ax {
+    fill: var(--fg-faint);
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    text-anchor: middle;
+    text-transform: uppercase;
+  }
+
+  .cell {
+    fill: var(--mint);
+    opacity: 0.16;
+    animation: seerCell 2.8s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+  .cell.self {
+    fill: var(--amber);
+  }
+  @keyframes seerCell {
+    0% {
+      opacity: 0.16;
+    }
+    8% {
+      opacity: 1;
+    }
+    26% {
+      opacity: 0.42;
+    }
+    100% {
+      opacity: 0.16;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .seer-attn svg {
+      width: 104px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cell {
+      animation: none;
+      opacity: 0.5;
+    }
+    .cell.self {
+      opacity: 0.85;
+    }
+  }
+</style>

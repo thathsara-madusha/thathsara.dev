@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ModelCloud from "../components/islands/ModelCloud.svelte";
+import Seer from "../components/Seer.astro";
 
 const nav = [
   { id: "top", label: "intro" },
@@ -36,6 +37,7 @@ const work = [
     title: "Seer",
     desc: "A GPT-style transformer language model built end to end in Rust on HuggingFace's Candle: BPE tokenizer, multi-head causal self-attention, and the full training pipeline from scratch.",
     meta: ["Rust", "Candle", "ML"],
+    Badge: Seer,
   },
   {
     n: "03",
@@ -120,7 +122,9 @@ const path = [
       <div class="cta">
         <a class="btn primary" href="#work">view work</a>
         <a class="btn" href="#contact">get in touch</a>
-        <button class="btn joke" id="jokeBtn" type="button">⚠️ do not click</button>
+        <button class="btn joke" id="jokeBtn" type="button"
+          >⚠️ do not click</button
+        >
       </div>
       <div class="scroll-hint">scroll <span>↓</span></div>
     </section>
@@ -175,15 +179,18 @@ const path = [
             <article class="work-item">
               <span class="num">{w.n}</span>
               <div>
-                <h3>
-                  {w.link ? (
-                    <a href={w.link} target="_blank" rel="noopener">
-                      {w.title}
-                    </a>
-                  ) : (
-                    w.title
-                  )}
-                </h3>
+                <div class="work-head">
+                  <h3>
+                    {w.link ? (
+                      <a href={w.link} target="_blank" rel="noopener">
+                        {w.title}
+                      </a>
+                    ) : (
+                      w.title
+                    )}
+                  </h3>
+                  {w.Badge && <w.Badge hideCaption width={28} />}
+                </div>
                 <p>{w.desc}</p>
                 <ul class="meta">
                   {w.meta.map((m) => (
@@ -211,12 +218,7 @@ const path = [
         <a href="https://runpod.io" target="_blank" rel="noopener">RunPod</a>.
       </p>
       <figure class="gpu-shot">
-        <img
-          src="/l40.webp"
-          alt="NVIDIA L40 GPU"
-          width="2220"
-          loading="lazy"
-        />
+        <img src="/l40.webp" alt="NVIDIA L40 GPU" width="2220" loading="lazy" />
         <figcaption>The NVIDIA L40 that did the heavy lifting.</figcaption>
       </figure>
       <div class="builtwith">
@@ -288,20 +290,40 @@ const path = [
   <!-- "do not click": a harmless gag -->
   <div class="joke-modal" id="jokeModal" aria-hidden="true">
     <div class="joke-card" role="dialog" aria-modal="true" aria-label="gotcha">
-      <button class="joke-close" id="jokeClose" type="button" aria-label="close">×</button>
+      <button class="joke-close" id="jokeClose" type="button" aria-label="close"
+        >×</button
+      >
       <div class="joke-reveal">
-        <svg class="joke-emoji" viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
-          <circle cx="32" cy="32" r="29" fill="#FFD166" stroke="#E6A700" stroke-width="2" />
-          <circle cx="23" cy="26" r="3.4" fill="#3a2e00" />
-          <circle cx="41" cy="26" r="3.4" fill="#3a2e00" />
-          <path d="M21 39c2.7 4.2 6.6 6.3 11 6.3s8.3-2.1 11-6.3" stroke="#3a2e00" stroke-width="3.2" stroke-linecap="round" />
+        <svg
+          class="joke-emoji"
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <circle
+            cx="32"
+            cy="32"
+            r="29"
+            fill="#FFD166"
+            stroke="#E6A700"
+            stroke-width="2"></circle>
+          <circle cx="23" cy="26" r="3.4" fill="#3a2e00"></circle>
+          <circle cx="41" cy="26" r="3.4" fill="#3a2e00"></circle>
+          <path
+            d="M21 39c2.7 4.2 6.6 6.3 11 6.3s8.3-2.1 11-6.3"
+            stroke="#3a2e00"
+            stroke-width="3.2"
+            stroke-linecap="round"></path>
         </svg>
         <h3>You really <em>can't</em> help yourself, huh?</h3>
         <p>
-          Neither can I. That's exactly what happens when there's a hard
-          problem sitting in front of me. Curiosity wins every time.
+          Neither can I. That's exactly what happens when there's a hard problem
+          sitting in front of me. Curiosity wins every time.
         </p>
-        <button class="btn primary" id="jokeOk" type="button">fair enough</button>
+        <button class="btn primary" id="jokeOk" type="button"
+          >fair enough</button
+        >
       </div>
     </div>
   </div>
@@ -651,7 +673,7 @@ const path = [
   }
   .work-item {
     display: grid;
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: auto 1fr;
     gap: 14px;
     padding: 22px 0;
     border-top: 1px solid var(--line);
@@ -661,8 +683,18 @@ const path = [
     font-size: 22px;
     color: var(--amber);
   }
-  .work-item h3 {
+  .work-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin: 0 0 6px;
+  }
+  .work-head :global(.seer-attn) {
+    margin: 0;
+    padding: 0;
+  }
+  .work-item h3 {
+    margin: 0;
     font-size: 17px;
     color: var(--fg);
     font-weight: 600;
@@ -1036,7 +1068,10 @@ const path = [
   });
   links.forEach((a) => a.addEventListener("click", () => setNav(false)));
   document.addEventListener("click", (e) => {
-    if (navEl?.classList.contains("open") && !navEl.contains(e.target as Node)) {
+    if (
+      navEl?.classList.contains("open") &&
+      !navEl.contains(e.target as Node)
+    ) {
       setNav(false);
     }
   });
