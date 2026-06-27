@@ -48,6 +48,21 @@
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   });
+
+  // Lock background scroll while the modal is open.
+  $effect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => (document.body.style.overflow = prev);
+  });
+
+  // Move the overlay to <body> so a transformed/filtered ancestor can't trap
+  // its `position: fixed` — it then covers the whole viewport, not the parent.
+  const portal = (node: HTMLElement) => {
+    document.body.appendChild(node);
+    return { destroy: () => node.remove() };
+  };
 </script>
 
 <span class="modal-trigger" bind:this={triggerWrap}>
@@ -58,6 +73,7 @@
 <div
   class="modal"
   class:open
+  use:portal
   aria-hidden={!open}
   onclick={(e) => {
     if (e.target === e.currentTarget) close();
