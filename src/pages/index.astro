@@ -54,6 +54,12 @@ const work = [
   },
 ];
 
+const metaIcons: Record<string, { src: string; href: string }> = {
+  Rust: { src: "/icons/rust.svg", href: "https://www.rust-lang.org" },
+  Kubernetes: { src: "/icons/kubernetes.svg", href: "https://kubernetes.io" },
+  Nginx: { src: "/icons/nginx.svg", href: "https://nginx.org" },
+};
+
 const path = [
   {
     when: "now",
@@ -193,9 +199,27 @@ const path = [
                 </div>
                 <p>{w.desc}</p>
                 <ul class="meta">
-                  {w.meta.map((m) => (
-                    <li>{m}</li>
-                  ))}
+                  {w.meta.map((m) =>
+                    metaIcons[m] ? (
+                      <li class="meta-logo">
+                        <a
+                          href={metaIcons[m].href}
+                          target="_blank"
+                          rel="noopener"
+                          aria-label={m}
+                        >
+                          <img
+                            class="meta-icon"
+                            src={metaIcons[m].src}
+                            alt={m}
+                            height="20"
+                          />
+                        </a>
+                      </li>
+                    ) : (
+                      <li>{m}</li>
+                    )
+                  )}
                 </ul>
               </div>
             </article>
@@ -225,7 +249,7 @@ const path = [
         <span class="builtwith-label">built on</span>
         <div class="logos">
           <span class="logo gpu">
-            <img src="/nvidia.svg" alt="NVIDIA" width="28" height="20" />
+            <img src="/icons/nvidia.svg" alt="NVIDIA" width="28" height="20" />
             <span>L40</span>
           </span>
           <a
@@ -235,7 +259,7 @@ const path = [
             rel="noopener"
             aria-label="RunPod"
           >
-            <img src="/runpod.svg" alt="RunPod" width="92" height="21" />
+            <img src="/icons/runpod.svg" alt="RunPod" width="92" height="21" />
           </a>
         </div>
       </div>
@@ -381,6 +405,33 @@ const path = [
   @keyframes progress {
     to {
       transform: scaleX(1);
+    }
+  }
+
+  /* ── Scroll-reveal: panel content slides up, fades, and de-blurs in a
+     cascading stagger as each section enters the viewport. The .reveal class
+     and per-item --i stagger index are assigned by script; we only animate
+     when motion is welcome. ───────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.panel .reveal) {
+      opacity: 0;
+      transform: translateY(34px);
+      filter: blur(8px);
+      transition:
+        opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: calc(var(--i, 0) * 75ms);
+      will-change: opacity, transform, filter;
+    }
+    :global(.panel.in .reveal) {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+    /* once revealed, drop the hint so hover/idle transforms aren't fought */
+    :global(.panel.in .reveal.done) {
+      will-change: auto;
     }
   }
 
@@ -651,6 +702,7 @@ const path = [
     list-style: none;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 6px;
     padding: 0;
     margin: 12px 0 0;
@@ -663,6 +715,24 @@ const path = [
     background: var(--bg-3);
     color: var(--fg-soft);
     letter-spacing: 0.04em;
+  }
+  .meta li {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 8px;
+  }
+  .meta li.meta-logo {
+    padding: 0 6px;
+  }
+  .meta-logo a {
+    display: inline-flex;
+    align-items: center;
+  }
+  .meta-icon {
+    display: block;
+    height: 20px;
+    width: auto;
   }
 
   /* Work list */
@@ -1054,6 +1124,47 @@ const path = [
   document
     .querySelectorAll("main.content section[id]")
     .forEach((s) => obs.observe(s));
+
+  // Scroll-reveal: tag each panel's content with .reveal + a stagger index,
+  // then flip the panel to .in the first time it scrolls into view. Grids are
+  // expanded into their items so cards/work/timeline rows cascade individually.
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const panels = [
+    ...document.querySelectorAll<HTMLElement>("main.content .panel"),
+  ];
+  if (!reduce) {
+    for (const panel of panels) {
+      const targets: HTMLElement[] = [];
+      for (const child of [...panel.children] as HTMLElement[]) {
+        if (child.matches(".cards, .work-list, .timeline")) {
+          targets.push(...([...child.children] as HTMLElement[]));
+        } else {
+          targets.push(child);
+        }
+      }
+      targets.forEach((el, i) => {
+        el.classList.add("reveal");
+        el.style.setProperty("--i", String(i));
+        el.addEventListener(
+          "transitionend",
+          () => el.classList.add("done"),
+          { once: true },
+        );
+      });
+    }
+    const revealObs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            revealObs.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.08 },
+    );
+    panels.forEach((p) => revealObs.observe(p));
+  }
 
   // Mobile nav: hamburger toggles the collapsed link panel.
   const navEl = document.querySelector<HTMLElement>(".nav");

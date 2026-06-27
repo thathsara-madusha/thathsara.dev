@@ -337,6 +337,9 @@
           // scroll-linked spin (2+ turns over the page) plus a slow idle drift
           const targetRotY = scrollProgress * Math.PI * 2.4 + t * 0.05;
           obj.rotation.y += (targetRotY - obj.rotation.y) * 0.06;
+          // forward/back tilt across the page so the figure leans as you travel
+          const targetRotX = (scrollProgress - 0.5) * 0.5;
+          obj.rotation.x += (targetRotX - obj.rotation.x) * 0.05;
           // gentle bob + scroll parallax so the figure rises as you descend
           obj.position.y += ((Math.sin(t * 0.5) * 0.03 - scrollProgress * 0.25) - obj.position.y) * 0.06;
         }
