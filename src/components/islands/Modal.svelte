@@ -69,7 +69,6 @@
   {@render trigger?.()}
 </span>
 
-<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 <div
   class="modal"
   class:open
@@ -80,7 +79,12 @@
     else if ((e.target as HTMLElement).closest("[data-modal-close]")) close();
   }}
 >
-  <div class="modal-card {cardClass}" role="dialog" aria-modal="true" aria-label={ariaLabel}>
+  <div
+    class="modal-card {cardClass}"
+    role="dialog"
+    aria-modal="true"
+    aria-label={ariaLabel}
+  >
     <button class="modal-close" type="button" aria-label="close" onclick={close}
       >×</button
     >
