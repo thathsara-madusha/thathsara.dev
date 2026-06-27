@@ -46,6 +46,16 @@
 html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
+/* Section scroll-snapping (full-height panels on the home page).
+   Set on both html and body: `overflow-x: hidden` on body below makes the
+   effective scroll container ambiguous, so we cover both.
+   Proximity (not mandatory) so you can always scroll past a section — it only
+   snaps once you settle near a boundary, and won't trap tall sections.
+   Desktop only — panels are auto-height on mobile. */
+@media (min-width: 901px) {
+  html, body { scroll-snap-type: y mandatory; }
+}
+
 body {
   background: var(--bg-0);
   color: var(--fg);
