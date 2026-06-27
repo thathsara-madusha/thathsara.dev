@@ -321,9 +321,14 @@
       );
 
       const clock = new THREE.Clock();
+      // Time we *animate* with. rAF pauses while the tab is hidden but the clock
+      // keeps measuring wall time, so on return getDelta() returns the whole idle
+      // gap in one frame. Cap each step and accumulate our own elapsed time so the
+      // model resumes smoothly instead of whipping around to catch up.
+      let t = 0;
       const tick = () => {
-        const dt = clock.getDelta();
-        const t = clock.elapsedTime;
+        const dt = Math.min(clock.getDelta(), 1 / 30);
+        t += dt;
         if (introActive && points && scattered && basePositions) {
           introT = Math.min(1, introT + dt * 0.6);
           const e = 1 - Math.pow(1 - introT, 3);
