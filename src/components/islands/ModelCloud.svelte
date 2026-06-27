@@ -35,12 +35,17 @@
 
       const scene = new THREE.Scene();
       // lighting for the real (textured) model that replaces the point cloud
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x222233, 1.0));
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+      // single blue key light → directional shading from one side
+      const keyLight = new THREE.DirectionalLight(0x7aa2f7, 3.0);
       keyLight.position.set(2, 3, 4);
       scene.add(keyLight);
       const pmrem = new THREE.PMREMGenerator(renderer);
-      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      scene.environment = envTexture;
+      // neutral room env fill — brighter so the model reads clearly while the
+      // single blue key light still provides the directional shading
+      scene.environmentIntensity = 0.5;
+      pmrem.dispose(); // generator's internal render targets aren't needed past the bake
       const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
       // Offsetting camera + target equally along x shifts the model on screen
       // (positive shiftX → model toward the right) without skewing perspective.
@@ -356,6 +361,7 @@
           window.removeEventListener('scroll', onScroll);
           clearTimeout(swapTimer);
           cancelAnimationFrame(raf);
+          envTexture.dispose();
           renderer.dispose();
         };
       })();
