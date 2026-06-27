@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ModelCloud from "../components/islands/ModelCloud.svelte";
+import Modal from "../components/islands/Modal.svelte";
 import Seer from "../components/Seer.astro";
 
 const nav = [
@@ -128,9 +129,43 @@ const path = [
       <div class="cta">
         <a class="btn primary" href="#work">view work</a>
         <a class="btn" href="#contact">get in touch</a>
-        <button class="btn joke" id="jokeBtn" type="button"
-          >⚠️ do not click</button
-        >
+        <Modal client:load ariaLabel="gotcha">
+          <button slot="trigger" class="btn joke" type="button"
+            >⚠️ do not click</button
+          >
+          <div class="joke-reveal">
+            <svg
+              class="joke-emoji"
+              viewBox="0 0 64 64"
+              fill="none"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle
+                cx="32"
+                cy="32"
+                r="29"
+                fill="#FFD166"
+                stroke="#E6A700"
+                stroke-width="2"></circle>
+              <circle cx="23" cy="26" r="3.4" fill="#3a2e00"></circle>
+              <circle cx="41" cy="26" r="3.4" fill="#3a2e00"></circle>
+              <path
+                d="M21 39c2.7 4.2 6.6 6.3 11 6.3s8.3-2.1 11-6.3"
+                stroke="#3a2e00"
+                stroke-width="3.2"
+                stroke-linecap="round"></path>
+            </svg>
+            <h3>You really <em>can't</em> help yourself, huh?</h3>
+            <p>
+              Neither can I. That's exactly what happens when there's a hard
+              problem sitting in front of me. Curiosity wins every time.
+            </p>
+            <button class="btn primary" type="button" data-modal-close
+              >fair enough</button
+            >
+          </div>
+        </Modal>
       </div>
       <div class="scroll-hint">scroll <span>↓</span></div>
     </section>
@@ -311,46 +346,6 @@ const path = [
     </section>
   </main>
 
-  <!-- "do not click": a harmless gag -->
-  <div class="joke-modal" id="jokeModal" aria-hidden="true">
-    <div class="joke-card" role="dialog" aria-modal="true" aria-label="gotcha">
-      <button class="joke-close" id="jokeClose" type="button" aria-label="close"
-        >×</button
-      >
-      <div class="joke-reveal">
-        <svg
-          class="joke-emoji"
-          viewBox="0 0 64 64"
-          fill="none"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <circle
-            cx="32"
-            cy="32"
-            r="29"
-            fill="#FFD166"
-            stroke="#E6A700"
-            stroke-width="2"></circle>
-          <circle cx="23" cy="26" r="3.4" fill="#3a2e00"></circle>
-          <circle cx="41" cy="26" r="3.4" fill="#3a2e00"></circle>
-          <path
-            d="M21 39c2.7 4.2 6.6 6.3 11 6.3s8.3-2.1 11-6.3"
-            stroke="#3a2e00"
-            stroke-width="3.2"
-            stroke-linecap="round"></path>
-        </svg>
-        <h3>You really <em>can't</em> help yourself, huh?</h3>
-        <p>
-          Neither can I. That's exactly what happens when there's a hard problem
-          sitting in front of me. Curiosity wins every time.
-        </p>
-        <button class="btn primary" id="jokeOk" type="button"
-          >fair enough</button
-        >
-      </div>
-    </div>
-  </div>
 </Layout>
 
 <style>
@@ -942,65 +937,6 @@ const path = [
     background: transparent;
     color: var(--fg-soft);
   }
-  .joke-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: color-mix(in srgb, var(--bg-0) 78%, transparent);
-    backdrop-filter: blur(8px);
-  }
-  .joke-modal.open {
-    display: flex;
-    animation: fade 180ms ease;
-  }
-  @keyframes fade {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  .joke-card {
-    position: relative;
-    max-width: 420px;
-    width: 100%;
-    border: 1px solid var(--line-strong);
-    background: var(--bg-1);
-    border-radius: 8px;
-    padding: 32px 28px 28px;
-    text-align: center;
-    animation: pop 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
-  }
-  @keyframes pop {
-    from {
-      transform: scale(0.92);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-  .joke-close {
-    position: absolute;
-    top: 10px;
-    right: 14px;
-    background: none;
-    border: none;
-    color: var(--fg-mute);
-    font-size: 22px;
-    line-height: 1;
-    cursor: pointer;
-    transition: color 140ms;
-  }
-  .joke-close:hover {
-    color: var(--fg);
-  }
   .joke-emoji {
     display: block;
     width: 56px;
@@ -1187,26 +1123,8 @@ const path = [
     }
   });
 
-  // Joke "do not click" button: opens a harmless gotcha modal.
-  const modal = document.getElementById("jokeModal");
-  const openModal = () => {
-    modal?.classList.add("open");
-    modal?.setAttribute("aria-hidden", "false");
-  };
-  const closeModal = () => {
-    modal?.classList.remove("open");
-    modal?.setAttribute("aria-hidden", "true");
-  };
-  document.getElementById("jokeBtn")?.addEventListener("click", openModal);
-  document.getElementById("jokeClose")?.addEventListener("click", closeModal);
-  document.getElementById("jokeOk")?.addEventListener("click", closeModal);
-  modal?.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal();
-  });
+  // Escape closes the mobile nav (the Modal island handles its own dismissal).
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeModal();
-      setNav(false);
-    }
+    if (e.key === "Escape") setNav(false);
   });
 </script>
