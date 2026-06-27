@@ -201,16 +201,11 @@ const path = [
         >, running it on an NVIDIA L40 GPU rented from{" "}
         <a href="https://runpod.io" target="_blank" rel="noopener">RunPod</a>.
       </p>
-      <p>
-        The resulting mesh is sampled down to ninety thousand points and
-        rendered live in your browser with three.js, then spun by your scroll.
-      </p>
       <figure class="gpu-shot">
         <img
           src="/l40.webp"
           alt="NVIDIA L40 GPU"
           width="2220"
-          height="1536"
           loading="lazy"
         />
         <figcaption>The NVIDIA L40 that did the heavy lifting.</figcaption>
@@ -700,6 +695,13 @@ const path = [
     display: block;
     width: 100%;
     height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  @media (max-width: 560px) {
+    .gpu-shot img {
+      aspect-ratio: 4 / 3;
+    }
   }
   .gpu-shot figcaption {
     padding: 9px 14px;
