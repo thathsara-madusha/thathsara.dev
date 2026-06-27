@@ -90,7 +90,17 @@ const path = [
         >thathsara<span class="ext">.dev</span></span
       ></a
     >
-    <div class="links">
+    <button
+      class="nav-toggle"
+      id="navToggle"
+      type="button"
+      aria-label="menu"
+      aria-expanded="false"
+      aria-controls="navLinks"
+    >
+      <span></span><span></span><span></span>
+    </button>
+    <div class="links" id="navLinks">
       {nav.map((n) => <a href={`#${n.id}`}>{n.label}</a>)}
     </div>
   </nav>
@@ -192,8 +202,7 @@ const path = [
       <span class="kicker">/ the model</span>
       <h2>How the figure was made.</h2>
       <p>
-        The figure isn't a stock asset. I generated the 3D model
-        with{" "}
+        The figure was generated with{" "}
         <a
           href="https://github.com/TencentARC/Pixal3D"
           target="_blank"
@@ -402,6 +411,40 @@ const path = [
   }
   .nav .links a.active {
     color: var(--amber);
+  }
+
+  /* Hamburger toggle: hidden on desktop, shown on mobile */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    margin: 0 auto;
+    background: var(--fg-soft);
+    transition:
+      transform 180ms ease,
+      opacity 140ms ease;
+  }
+  .nav.open .nav-toggle span:nth-child(1) {
+    transform: translateY(5.5px) rotate(45deg);
+  }
+  .nav.open .nav-toggle span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav.open .nav-toggle span:nth-child(3) {
+    transform: translateY(-5.5px) rotate(-45deg);
   }
 
   /* Scrolling content column: left half on desktop */
@@ -924,11 +967,34 @@ const path = [
     .nav {
       padding: 12px 16px;
     }
+    .nav-toggle {
+      display: flex;
+    }
+    /* Collapse the inline links into a dropdown panel */
     .nav .links {
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 10px;
-      font-size: 10px;
+      position: absolute;
+      top: calc(100% - 4px);
+      right: 16px;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--bg-1) 92%, transparent);
+      backdrop-filter: blur(10px);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition:
+        opacity 160ms ease,
+        transform 160ms ease;
+    }
+    .nav.open .links {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
     }
     .btn.joke {
       display: none;
@@ -957,6 +1023,24 @@ const path = [
     .querySelectorAll("main.content section[id]")
     .forEach((s) => obs.observe(s));
 
+  // Mobile nav: hamburger toggles the collapsed link panel.
+  const navEl = document.querySelector<HTMLElement>(".nav");
+  const navToggle = document.getElementById("navToggle");
+  const setNav = (open: boolean) => {
+    navEl?.classList.toggle("open", open);
+    navToggle?.setAttribute("aria-expanded", String(open));
+  };
+  navToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setNav(!navEl?.classList.contains("open"));
+  });
+  links.forEach((a) => a.addEventListener("click", () => setNav(false)));
+  document.addEventListener("click", (e) => {
+    if (navEl?.classList.contains("open") && !navEl.contains(e.target as Node)) {
+      setNav(false);
+    }
+  });
+
   // Joke "do not click" button: opens a harmless gotcha modal.
   const modal = document.getElementById("jokeModal");
   const openModal = () => {
@@ -974,6 +1058,9 @@ const path = [
     if (e.target === modal) closeModal();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
+    if (e.key === "Escape") {
+      closeModal();
+      setNav(false);
+    }
   });
 </script>
