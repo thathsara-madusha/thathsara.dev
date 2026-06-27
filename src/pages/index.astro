@@ -48,6 +48,13 @@ const work = [
     desc: "A self-hosted infrastructure lab exposed to the public internet — a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
     meta: ["Kubernetes", "Nginx", "Prometheus"],
   },
+  {
+    n: "04",
+    title: "thathsara.lk",
+    desc: "My personal site and writing space — a place to share projects, notes, and the occasional deep dive.",
+    meta: ["Web", "Personal"],
+    link: "https://thathsara.lk",
+  },
 ];
 
 const path = [
@@ -162,7 +169,15 @@ const path = [
             <article class="work-item">
               <span class="num">{w.n}</span>
               <div>
-                <h3>{w.title}</h3>
+                <h3>
+                  {w.link ? (
+                    <a href={w.link} target="_blank" rel="noopener">
+                      {w.title}
+                    </a>
+                  ) : (
+                    w.title
+                  )}
+                </h3>
                 <p>{w.desc}</p>
                 <ul class="meta">
                   {w.meta.map((m) => (
@@ -532,6 +547,14 @@ const path = [
     font-size: 17px;
     color: var(--fg);
     font-weight: 600;
+  }
+  .work-item h3 a {
+    color: var(--amber);
+    text-decoration: none;
+    transition: color 140ms;
+  }
+  .work-item h3 a:hover {
+    color: var(--fg);
   }
   .work-item p {
     font-size: 13px;
