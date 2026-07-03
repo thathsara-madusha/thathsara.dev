@@ -39,15 +39,16 @@ const work = [
     desc: "A GPT-style transformer language model built end to end in Rust on HuggingFace's Candle: BPE tokenizer, multi-head causal self-attention, and the full training pipeline from scratch.",
     meta: ["Rust", "Candle", "ML"],
     Badge: Seer,
+    link: "https://github.com/nova9/seer",
   },
   {
-    n: "03",
+    n: "02",
     title: "Home Lab",
     desc: "A self-hosted infrastructure lab exposed to the public internet: a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
     meta: ["Kubernetes", "Nginx", "Prometheus"],
   },
   {
-    n: "04",
+    n: "03",
     title: "thathsara.lk",
     desc: "My personal site and writing space, a place to share projects, notes, and the occasional deep dive.",
     meta: ["Web", "Personal"],
@@ -70,18 +71,18 @@ const path = [
     note: "Shipping a full-stack self-service storage feature: Go backend services and a React/TypeScript marketplace UI, delivered across six codebases and three teams.",
   },
   {
+    when: "2023 - 2027",
+    role: "BSc (Hons) Computer Science",
+    at: "UCSC",
+    cur: true,
+    note: "Honours degree at the University of Colombo, GPA 3.66 and two Director's List awards for academic excellence.",
+  },
+  {
     when: "2022 - 2024",
     role: "Freelance Web Developer",
     at: "Remote",
     cur: false,
     note: "Delivered Laravel CMS and web apps for clients, owning backend architecture, deployment, and SEO performance.",
-  },
-  {
-    when: "2023 - 2027",
-    role: "BSc (Hons) Computer Science",
-    at: "UCSC",
-    cur: false,
-    note: "Honours degree at the University of Colombo, GPA 3.66 and two Director's List awards for academic excellence.",
   },
 ];
 ---
@@ -94,11 +95,16 @@ const path = [
   </div>
 
   <nav class="nav">
-    <a class="brand" href="#top">
-      <span class="dot"></span><span
-        >thathsara<span class="ext">.dev</span></span
-      ></a
-    >
+    <div class="brand-group">
+      <a class="brand" href="#top">
+        <span class="dot"></span><span
+          >thathsara<span class="ext">.dev</span></span
+        ></a
+      >
+      <a class="resume" href="/resume.pdf" target="_blank" rel="noopener"
+        >resume ↗</a
+      >
+    </div>
     <button
       class="nav-toggle"
       id="navToggle"
@@ -288,6 +294,7 @@ const path = [
       <h2>Let's build something.</h2>
       <p>Open to interesting problems and good people to build them with.</p>
       <div class="contact-links">
+        <a href="/resume.pdf" target="_blank" rel="noopener">resume</a>
         <a href="mailto:thathsaramadhhusha@gmail.com">email</a>
         <a href="https://github.com/nova9" target="_blank" rel="noopener"
           >github</a
@@ -442,6 +449,25 @@ const path = [
   }
   .nav .links a.active {
     color: var(--amber);
+  }
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .nav a.resume {
+    color: var(--amber);
+    text-decoration: none;
+    border: 1px solid var(--line-strong);
+    border-radius: 3px;
+    padding: 4px 10px;
+    transition:
+      color 140ms,
+      border-color 140ms;
+  }
+  .nav a.resume:hover {
+    color: var(--fg);
+    border-color: var(--amber);
   }
 
   /* Hamburger toggle: hidden on desktop, shown on mobile */
