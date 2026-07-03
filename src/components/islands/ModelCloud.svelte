@@ -11,6 +11,22 @@
   let status = $state('loading…');
   let progress = $state(0);
   let ready = $state(false);
+  let hiLoading = $state(false);
+  let hiPhrase = $state('');
+  let hiProgress = $state(0);
+
+  // rotating status lines while the heavy textured model streams in
+  const hiPhrases = [
+    'loading textures…',
+    'downloading polygons…',
+    'unwrapping UVs…',
+    'baking the lighting…',
+    'polishing pixels…',
+    'combing the mesh…',
+    'summoning high-res me…',
+    'ironing out the normals…',
+    'rendering my good side…',
+  ];
 
   $effect(() => {
     if (!canvas || !wrap) return;
@@ -66,6 +82,7 @@
       let actual: any = null; // the real textured model that replaces the cloud
       let cloudShownAt = 0;   // timestamp the cloud became visible (min display time)
       let swapTimer: ReturnType<typeof setTimeout> | undefined;
+      let phraseTimer: ReturnType<typeof setInterval> | undefined;
       const MIN_CLOUD_MS = 5000; // keep the point cloud on screen at least this long
 
       // Scroll drives the model: full-page progress → rotation + vertical parallax.
@@ -273,6 +290,14 @@
           // Background-load the full textured model. Once it arrives, drop the
           // point cloud and show the real lit/textured mesh in its place — but
           // not before the cloud has been on screen for MIN_CLOUD_MS.
+          hiLoading = true;
+          hiProgress = 0;
+          let phraseIdx = 0;
+          hiPhrase = hiPhrases[0];
+          phraseTimer = setInterval(() => {
+            phraseIdx = (phraseIdx + 1) % hiPhrases.length;
+            hiPhrase = hiPhrases[phraseIdx];
+          }, 2200);
           loader.load(
             hiSrc,
             (hi: any) => {
@@ -301,14 +326,23 @@
                   points = null;
                 }
                 introActive = false;
+                // indicator disappears the moment the textured model appears
+                hiLoading = false;
+                clearInterval(phraseTimer);
               };
 
               const remaining = MIN_CLOUD_MS - (performance.now() - cloudShownAt);
               if (remaining > 0) swapTimer = setTimeout(swap, remaining);
               else swap();
             },
-            undefined,
-            () => { /* keep the point cloud if the full model fails */ }
+            (e: any) => {
+              if (e.lengthComputable) hiProgress = Math.round((e.loaded / e.total) * 100);
+            },
+            () => {
+              // keep the point cloud if the full model fails
+              hiLoading = false;
+              clearInterval(phraseTimer);
+            }
           );
         },
         (e: any) => {
@@ -365,6 +399,7 @@
           prev?.();
           window.removeEventListener('scroll', onScroll);
           clearTimeout(swapTimer);
+          clearInterval(phraseTimer);
           cancelAnimationFrame(raf);
           envTexture.dispose();
           renderer.dispose();
@@ -386,6 +421,14 @@
     <div class="overlay">
       <div class="spinner"></div>
       <span>{status}</span>
+    </div>
+  {/if}
+  {#if hiLoading}
+    <div class="hi-loader">
+      <div class="hi-spinner"></div>
+      {#key hiPhrase}
+        <span class="hi-text">{hiPhrase}{hiProgress > 0 ? ` ${hiProgress}%` : ''}</span>
+      {/key}
     </div>
   {/if}
 </div>
@@ -414,4 +457,35 @@
     border-radius: 50%; animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hi-loader {
+    position: absolute;
+    left: 50%; bottom: 16px;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(10, 12, 20, 0.55);
+    border: 1px solid var(--line-strong);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--fg-mute); font-family: var(--mono); font-size: 11px;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: rise-in 0.4s ease;
+  }
+  .hi-spinner {
+    width: 12px; height: 12px; flex-shrink: 0;
+    border: 1.5px solid var(--line-strong); border-top-color: var(--azure);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  .hi-text { animation: phrase-in 0.35s ease; }
+  @keyframes rise-in {
+    from { opacity: 0; transform: translate(-50%, 8px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  @keyframes phrase-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
