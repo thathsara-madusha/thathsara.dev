@@ -49,10 +49,9 @@ const work = [
   },
   {
     n: "03",
-    title: "thathsara.lk",
-    desc: "My personal site and writing space, a place to share projects, notes, and the occasional deep dive.",
-    meta: ["Web", "Personal"],
-    link: "https://thathsara.lk",
+    title: "CareerSync",
+    desc: "A cloud-native recruitment platform that processed over 12,000 résumé PDFs with OpenAI for automated candidate screening — React/Laravel, provisioned with Terraform, deployed on Kubernetes.",
+    meta: ["Kubernetes", "Terraform", "OpenAI"],
   },
 ];
 
@@ -64,11 +63,18 @@ const metaIcons: Record<string, { src: string; href: string }> = {
 
 const path = [
   {
-    when: "now",
+    when: "ongoing",
+    role: "Undergraduate Researcher",
+    at: "University of Colombo",
+    cur: true,
+    note: "Researching DDoS-aware autoscaling for cloud resilience against EDoS attacks: distinguishing legitimate from malicious traffic when allocating resources.",
+  },
+  {
+    when: "nov 2025 - apr 2026",
     role: "Intern Software Engineer",
     at: "WSO2",
-    cur: true,
-    note: "Shipping a full-stack self-service storage feature: Go backend services and a React/TypeScript marketplace UI, delivered across six codebases and three teams.",
+    cur: false,
+    note: "Shipped a self-service persistent-storage feature for cloud applications — Go backend services and a React/TypeScript marketplace UI — eliminating manual infrastructure configuration, with every change passing senior review across six codebases and three teams.",
   },
   {
     when: "2023 - 2027",
@@ -144,9 +150,9 @@ const path = [
       <span class="kicker">/ about</span>
       <h2>Engineer, end to end.</h2>
       <p>
-        I'm a software engineer at WSO2 with a computer science background from
-        the University of Colombo, working from Go and Rust backends to
-        Kubernetes infrastructure. The figure beside this text is rendered live
+        I'm a software engineer, most recently at WSO2, with a computer science
+        background from the University of Colombo, working from Go and Rust
+        backends to Kubernetes infrastructure. The figure beside this text is rendered live
         in your browser: ninety thousand points sampled from a 3D scan and spun
         by your scroll.
       </p>
@@ -295,7 +301,7 @@ const path = [
       <p>Open to interesting problems and good people to build them with.</p>
       <div class="contact-links">
         <a href="/resume.pdf" target="_blank" rel="noopener">resume</a>
-        <a href="mailto:thathsaramadhhusha@gmail.com">email</a>
+        <a href="mailto:madusha.ttsr@gmail.com">email</a>
         <a href="https://github.com/nova9" target="_blank" rel="noopener"
           >github</a
         >
@@ -308,6 +314,9 @@ const path = [
           href="https://www.instagram.com/_.thathsara/"
           target="_blank"
           rel="noopener">instagram</a
+        >
+        <a href="https://thathsara.lk" target="_blank" rel="noopener"
+          >thathsara.lk</a
         >
       </div>
       <footer>
@@ -885,7 +894,8 @@ const path = [
   /* Contact */
   .contact-links {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 14px 20px;
     margin-top: 22px;
   }
   .contact-links a {
