@@ -336,7 +336,9 @@
               else swap();
             },
             (e: any) => {
-              if (e.lengthComputable) hiProgress = Math.round((e.loaded / e.total) * 100);
+              // with gzip/brotli, e.total is the compressed size but e.loaded
+              // counts decompressed bytes — the ratio can exceed 1, so clamp
+              if (e.lengthComputable) hiProgress = Math.min(100, Math.round((e.loaded / e.total) * 100));
             },
             () => {
               // keep the point cloud if the full model fails
@@ -347,7 +349,7 @@
         },
         (e: any) => {
           if (e.lengthComputable) {
-            progress = Math.round((e.loaded / e.total) * 100);
+            progress = Math.min(100, Math.round((e.loaded / e.total) * 100));
             status = `loading ${progress}%`;
           }
         },
