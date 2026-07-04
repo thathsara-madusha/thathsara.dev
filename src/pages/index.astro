@@ -9,6 +9,7 @@ const nav = [
   { id: "about", label: "about" },
   { id: "focus", label: "focus" },
   { id: "work", label: "work" },
+  { id: "fastr", label: "fastr" },
   { id: "model", label: "model" },
   { id: "path", label: "path" },
   { id: "contact", label: "contact" },
@@ -236,6 +237,19 @@ const path = [
           ))
         }
       </div>
+    </section>
+
+    <!-- FASTR -->
+    <section id="fastr" class="panel">
+      <span class="kicker">/ up next</span>
+      <h2>Fastr <span class="soon">coming soon</span></h2>
+      <p>
+        A fast, native download manager, built for a clean, no-friction
+        downloading experience.
+      </p>
+      <figure class="fastr-shot">
+        <img src="/fastr.png" alt="Fastr, a download manager" loading="lazy" />
+      </figure>
     </section>
 
     <!-- MODEL -->
@@ -822,6 +836,33 @@ const path = [
   }
 
   /* GPU render (model section) */
+  .soon {
+    display: inline-block;
+    vertical-align: middle;
+    font-family: var(--sans, inherit);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mint);
+    border: 1px solid var(--mint);
+    border-radius: 999px;
+    padding: 3px 9px;
+    margin-left: 10px;
+  }
+  .fastr-shot {
+    margin: 26px 0 0;
+    max-width: 560px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+  }
+  .fastr-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
   .gpu-shot {
     margin: 26px 0 0;
     border: 1px solid var(--line);
