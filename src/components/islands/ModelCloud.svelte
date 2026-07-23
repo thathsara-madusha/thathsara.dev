@@ -1,7 +1,7 @@
 <script lang="ts">
   let {
     src = '/me.glb',
-    hiSrc = '/fixed.glb',
+    hiSrc = '/me.glb',
     lockLook = false,
     shiftX = 0,
   }: { src?: string; hiSrc?: string; lockLook?: boolean; shiftX?: number } = $props();
