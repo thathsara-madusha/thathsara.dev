@@ -1,10 +1,17 @@
 <script lang="ts">
   let {
     src = '/me.glb',
-    hiSrc = '/me.glb',
+    hiSrc = '/fixed.glb',
     lockLook = false,
     shiftX = 0,
-  }: { src?: string; hiSrc?: string; lockLook?: boolean; shiftX?: number } = $props();
+    disableHiRes = false, // <-- Added prop
+  }: { 
+    src?: string; 
+    hiSrc?: string; 
+    lockLook?: boolean; 
+    shiftX?: number;
+    disableHiRes?: boolean; // <-- Added type
+  } = $props();
 
   let canvas = $state<HTMLCanvasElement | undefined>(undefined);
   let wrap = $state<HTMLDivElement | undefined>(undefined);
@@ -45,26 +52,21 @@
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setClearColor(0x000000, 0);
-      // tone mapping + neutral env light so the textured model reads correctly
+      
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.0;
 
       const scene = new THREE.Scene();
-      // lighting for the real (textured) model that replaces the point cloud
-      // single blue key light → directional shading from one side
+      
       const keyLight = new THREE.DirectionalLight(0x7aa2f7, 3.0);
       keyLight.position.set(2, 3, 4);
       scene.add(keyLight);
       const pmrem = new THREE.PMREMGenerator(renderer);
       const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
       scene.environment = envTexture;
-      // neutral room env fill — brighter so the model reads clearly while the
-      // single blue key light still provides the directional shading
       scene.environmentIntensity = 0.5;
-      pmrem.dispose(); // generator's internal render targets aren't needed past the bake
+      pmrem.dispose(); 
       const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
-      // Offsetting camera + target equally along x shifts the model on screen
-      // (positive shiftX → model toward the right) without skewing perspective.
       camera.position.set(-shiftX, 0, 4);
 
       const controls = new OrbitControls(camera, canvas);
@@ -74,18 +76,16 @@
       controls.enablePan = false;
       controls.target.set(-shiftX, 0, 0);
       controls.update();
-      // when locked, the user can't orbit/zoom the camera by hand
       controls.enableRotate = !lockLook;
       controls.enableZoom = !lockLook;
 
       let points: any = null;
-      let actual: any = null; // the real textured model that replaces the cloud
-      let cloudShownAt = 0;   // timestamp the cloud became visible (min display time)
+      let actual: any = null; 
+      let cloudShownAt = 0;   
       let swapTimer: ReturnType<typeof setTimeout> | undefined;
       let phraseTimer: ReturnType<typeof setInterval> | undefined;
-      const MIN_CLOUD_MS = 5000; // keep the point cloud on screen at least this long
+      const MIN_CLOUD_MS = 5000; 
 
-      // Scroll drives the model: full-page progress → rotation + vertical parallax.
       let scrollProgress = 0;
       const onScroll = () => {
         const max = document.documentElement.scrollHeight - window.innerHeight;
@@ -105,7 +105,6 @@
       cleanupResize = () => window.removeEventListener('resize', resize);
       resize();
 
-      // crisp round white dot
       const sc = document.createElement('canvas');
       sc.width = sc.height = 64;
       const g = sc.getContext('2d')!;
@@ -119,10 +118,6 @@
       const sprite = new THREE.CanvasTexture(sc);
       sprite.colorSpace = THREE.SRGBColorSpace;
 
-      // area-weighted surface sampler → even point cloud
-      // Triangles are stored in flat typed arrays (no per-tri object/Vector3 churn)
-      // and selected via a cumulative-area prefix sum + binary search, so cost is
-      // O(triCount + targetCount·log triCount) instead of O(targetCount·triCount).
       const samplePoints = (meshes: any[], targetCount: number) => {
         const out = new Float32Array(targetCount * 3);
         const nrm = new Float32Array(targetCount * 3);
@@ -136,8 +131,8 @@
         }
         if (!triCount) return { positions: out, normals: nrm };
 
-        const triVerts = new Float32Array(triCount * 9); // 3 verts × xyz per triangle
-        const cumArea = new Float64Array(triCount);       // prefix sum of areas
+        const triVerts = new Float32Array(triCount * 9); 
+        const cumArea = new Float64Array(triCount);       
         const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
         const ab = new THREE.Vector3(), ac = new THREE.Vector3(), cross = new THREE.Vector3();
 
@@ -172,7 +167,6 @@
 
         for (let i = 0; i < targetCount; i++) {
           const r = Math.random() * totalArea;
-          // binary search: first triangle whose cumulative area ≥ r
           let lo = 0, hi = ti - 1;
           while (lo < hi) {
             const mid = (lo + hi) >> 1;
@@ -187,7 +181,7 @@
           out[i * 3]     = ax + e1x * u + e2x * v;
           out[i * 3 + 1] = ay + e1y * u + e2y * v;
           out[i * 3 + 2] = az + e1z * u + e2z * v;
-          // geometric (face) normal = e1 × e2, used to fade away back-facing points
+          
           let nx = e1y * e2z - e1z * e2y;
           let ny = e1z * e2x - e1x * e2z;
           let nz = e1x * e2y - e1y * e2x;
@@ -220,18 +214,16 @@
           root.traverse((o: any) => { if (o.isMesh && o.geometry) meshes.push(o); });
 
           const { positions: arr, normals: nrm } = samplePoints(meshes, 90000);
-          basePositions = arr;                // pristine target — never mutated
-          const drawArr = arr.slice();        // separate buffer the intro animates into
-          // per-point random phase so each dot twinkles independently
+          basePositions = arr;                
+          const drawArr = arr.slice();        
+          
           const seeds = new Float32Array(arr.length / 3);
           for (let i = 0; i < seeds.length; i++) seeds[i] = Math.random() * Math.PI * 2;
           const geo = new THREE.BufferGeometry();
           geo.setAttribute('position', new THREE.BufferAttribute(drawArr, 3));
           geo.setAttribute('aNormal', new THREE.BufferAttribute(nrm, 3));
           geo.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
-          // Custom point shader: size-attenuated white dots. Every sampled point
-          // is drawn equally (front and back surface alike) so the full volume
-          // reads as an even white particle cloud, matching the Tripo look.
+          
           const mat = new THREE.ShaderMaterial({
             uniforms: {
               uSize: { value: 0.009 },
@@ -250,7 +242,6 @@
               attribute float aSeed;
               varying float vTw;
               void main() {
-                // independent per-point twinkle — never touches position
                 vTw = 0.65 + 0.35 * sin(uTime * 2.2 + aSeed);
                 vec4 mv = modelViewMatrix * vec4(position, 1.0);
                 gl_PointSize = uSize * (uScale / -mv.z) * (0.85 + 0.3 * vTw);
@@ -271,7 +262,6 @@
           points = new THREE.Points(geo, mat);
           scene.add(points);
 
-          // intro: scatter → settle
           scattered = new Float32Array(arr.length);
           const dir = new THREE.Vector3();
           for (let i = 0; i < arr.length; i += 3) {
@@ -287,65 +277,59 @@
           ready = true;
           cloudShownAt = performance.now();
 
-          // Background-load the full textured model. Once it arrives, drop the
-          // point cloud and show the real lit/textured mesh in its place — but
-          // not before the cloud has been on screen for MIN_CLOUD_MS.
-          hiLoading = true;
-          hiProgress = 0;
-          let phraseIdx = 0;
-          hiPhrase = hiPhrases[0];
-          phraseTimer = setInterval(() => {
-            phraseIdx = (phraseIdx + 1) % hiPhrases.length;
-            hiPhrase = hiPhrases[phraseIdx];
-          }, 2200);
-          loader.load(
-            hiSrc,
-            (hi: any) => {
-              if (disposed) return;
-              const root = hi.scene;
-              const hbox = new THREE.Box3().setFromObject(root);
-              const hsize = hbox.getSize(new THREE.Vector3());
-              const hcenter = hbox.getCenter(new THREE.Vector3());
-              root.position.sub(hcenter);
-              root.scale.setScalar(2.4 / Math.max(hsize.x, hsize.y, hsize.z));
-
-              const swap = () => {
+          // <-- Only load the high-res mesh if we haven't disabled it via props
+          if (!disableHiRes) {
+            hiLoading = true;
+            hiProgress = 0;
+            let phraseIdx = 0;
+            hiPhrase = hiPhrases[0];
+            phraseTimer = setInterval(() => {
+              phraseIdx = (phraseIdx + 1) % hiPhrases.length;
+              hiPhrase = hiPhrases[phraseIdx];
+            }, 2200);
+            loader.load(
+              hiSrc,
+              (hi: any) => {
                 if (disposed) return;
-                // group wrapper: root holds centering+scale, group takes the
-                // scroll rotation / parallax so they don't fight each other
-                const group = new THREE.Group();
-                group.add(root);
-                if (points) { group.rotation.y = points.rotation.y; group.position.y = points.position.y; }
-                scene.add(group);
-                actual = group;
+                const root = hi.scene;
+                const hbox = new THREE.Box3().setFromObject(root);
+                const hsize = hbox.getSize(new THREE.Vector3());
+                const hcenter = hbox.getCenter(new THREE.Vector3());
+                root.position.sub(hcenter);
+                root.scale.setScalar(2.4 / Math.max(hsize.x, hsize.y, hsize.z));
 
-                if (points) {
-                  scene.remove(points);
-                  points.geometry.dispose();
-                  points.material.dispose();
-                  points = null;
-                }
-                introActive = false;
-                // indicator disappears the moment the textured model appears
+                const swap = () => {
+                  if (disposed) return;
+                  const group = new THREE.Group();
+                  group.add(root);
+                  if (points) { group.rotation.y = points.rotation.y; group.position.y = points.position.y; }
+                  scene.add(group);
+                  actual = group;
+
+                  if (points) {
+                    scene.remove(points);
+                    points.geometry.dispose();
+                    points.material.dispose();
+                    points = null;
+                  }
+                  introActive = false;
+                  hiLoading = false;
+                  clearInterval(phraseTimer);
+                };
+
+                const remaining = MIN_CLOUD_MS - (performance.now() - cloudShownAt);
+                if (remaining > 0) swapTimer = setTimeout(swap, remaining);
+                else swap();
+              },
+              (e: any) => {
+                if (e.lengthComputable) hiProgress = Math.min(100, Math.round((e.loaded / e.total) * 100));
+              },
+              () => {
                 hiLoading = false;
                 clearInterval(phraseTimer);
-              };
-
-              const remaining = MIN_CLOUD_MS - (performance.now() - cloudShownAt);
-              if (remaining > 0) swapTimer = setTimeout(swap, remaining);
-              else swap();
-            },
-            (e: any) => {
-              // with gzip/brotli, e.total is the compressed size but e.loaded
-              // counts decompressed bytes — the ratio can exceed 1, so clamp
-              if (e.lengthComputable) hiProgress = Math.min(100, Math.round((e.loaded / e.total) * 100));
-            },
-            () => {
-              // keep the point cloud if the full model fails
-              hiLoading = false;
-              clearInterval(phraseTimer);
-            }
-          );
+              }
+            );
+          }
         },
         (e: any) => {
           if (e.lengthComputable) {
@@ -357,10 +341,6 @@
       );
 
       const clock = new THREE.Clock();
-      // Time we *animate* with. rAF pauses while the tab is hidden but the clock
-      // keeps measuring wall time, so on return getDelta() returns the whole idle
-      // gap in one frame. Cap each step and accumulate our own elapsed time so the
-      // model resumes smoothly instead of whipping around to catch up.
       let t = 0;
       const tick = () => {
         const dt = Math.min(clock.getDelta(), 1 / 30);
@@ -377,16 +357,13 @@
           points.material.uniforms.uTime.value = t;
           points.material.uniforms.uSize.value = 0.009 + Math.sin(t * 1.5) * 0.001;
         }
-        // scroll drives the cloud first, then the real model once it's swapped in
+        
         const obj = points ?? actual;
         if (obj) {
-          // scroll-linked spin (2+ turns over the page) plus a slow idle drift
           const targetRotY = scrollProgress * Math.PI * 2.4 + t * 0.05;
           obj.rotation.y += (targetRotY - obj.rotation.y) * 0.06;
-          // forward/back tilt across the page so the figure leans as you travel
           const targetRotX = (scrollProgress - 0.5) * 0.5;
           obj.rotation.x += (targetRotX - obj.rotation.x) * 0.05;
-          // gentle bob + scroll parallax so the figure rises as you descend
           obj.position.y += ((Math.sin(t * 0.5) * 0.03 - scrollProgress * 0.25) - obj.position.y) * 0.06;
         }
         controls.update();
@@ -417,6 +394,7 @@
   });
 </script>
 
+<!-- Rest of markup and styles remain identical -->
 <div class="cloud" bind:this={wrap}>
   <canvas bind:this={canvas}></canvas>
   {#if !ready}
