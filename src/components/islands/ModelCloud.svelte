@@ -38,6 +38,10 @@
     if (!canvas || !wrap) return;
     let disposed = false;
     let animationFrameId = 0;
+    let cleanupEvents = () => {};
+    let disposeRenderer = () => {};
+    let cancelModelSwap = () => {};
+    const abortController = new AbortController();
     
     // Shared state for the animation loop
     const sceneState: any = {
@@ -57,10 +61,11 @@
 
       // 2. Setup Core Scene
       const { renderer, scene, camera, controls } = setupScene(deps, canvas, shiftX, lockLook);
+      disposeRenderer = () => renderer.dispose();
       setupLightingAndEnvironment(deps, scene, renderer);
       
       // 3. Setup Events (Resize & Scroll)
-      const cleanupEvents = setupEventListeners(wrap, renderer, camera, sceneState);
+      cleanupEvents = setupEventListeners(wrap, renderer, camera, sceneState);
 
       // 4. Prepare Loaders & Materials
       const spriteTexture = createParticleSprite(deps.THREE);
@@ -112,35 +117,119 @@
         animationFrameId = requestAnimationFrame(tick);
 
         // 7. Progressively Load High-Res Model (Optional)
-        if (!disableHiRes) {
-          const phraseTimer = startHighResPhrases();
-          
-          const hiResGltf = await loadModel(loader, hiSrc, (p) => {
-            hiProgress = p;
-          });
-          
+        if (!disableHiRes && shouldLoadHighRes()) {
+          await waitForHighResOpportunity(abortController.signal);
+
           if (!disposed) {
-            scheduleModelSwap(deps.THREE, scene, sceneState, hiResGltf.scene, cloudShownAt, () => {
+            const phraseTimer = startHighResPhrases();
+
+            try {
+              const hiResGltf = await loadModel(loader, hiSrc, (p) => {
+                hiProgress = p;
+              });
+
+              if (!disposed) {
+                cancelModelSwap = scheduleModelSwap(deps.THREE, scene, sceneState, hiResGltf.scene, cloudShownAt, () => {
+                  hiLoading = false;
+                  clearInterval(phraseTimer);
+                });
+              } else {
+                clearInterval(phraseTimer);
+              }
+            } catch {
               hiLoading = false;
               clearInterval(phraseTimer);
-            });
+            }
           }
         }
       } catch (err) {
-        status = 'load failed';
+        if (!disposed) status = 'load failed';
       }
-
-      // Cleanup function injected into the disposed check
-      return () => {
-        disposed = true;
-        cancelAnimationFrame(animationFrameId);
-        cleanupEvents();
-        renderer.dispose();
-      };
     })();
+
+    return () => {
+      disposed = true;
+      abortController.abort();
+      cancelAnimationFrame(animationFrameId);
+      cancelModelSwap();
+      cleanupEvents();
+      disposeRenderer();
+    };
   });
 
   // --- HELPER FUNCTIONS ---
+
+  function shouldLoadHighRes() {
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+
+    if (connection?.saveData) return false;
+    return !['slow-2g', '2g'].includes(connection?.effectiveType ?? '');
+  }
+
+  function waitForHighResOpportunity(signal: AbortSignal) {
+    return new Promise<void>((resolve) => {
+      let idleId: number | undefined;
+      let fallbackId: ReturnType<typeof setTimeout> | undefined;
+
+      const cancelIdleWait = () => {
+        if (idleId !== undefined && 'cancelIdleCallback' in window) {
+          window.cancelIdleCallback(idleId);
+          idleId = undefined;
+        }
+        if (fallbackId !== undefined) {
+          clearTimeout(fallbackId);
+          fallbackId = undefined;
+        }
+      };
+
+      const cleanup = () => {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        cancelIdleWait();
+        signal.removeEventListener('abort', onAbort);
+      };
+
+      const finish = () => {
+        if (document.visibilityState !== 'visible') {
+          cancelIdleWait();
+          return;
+        }
+        cleanup();
+        resolve();
+      };
+
+      const waitForIdle = () => {
+        if (idleId !== undefined || fallbackId !== undefined) return;
+        if ('requestIdleCallback' in window) {
+          idleId = window.requestIdleCallback(finish, { timeout: 10000 });
+        } else {
+          fallbackId = setTimeout(finish, 4000);
+        }
+      };
+
+      const onVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          waitForIdle();
+        } else {
+          cancelIdleWait();
+        }
+      };
+
+      const onAbort = () => {
+        cleanup();
+        resolve();
+      };
+
+      signal.addEventListener('abort', onAbort, { once: true });
+      document.addEventListener('visibilitychange', onVisibilityChange);
+      if (document.visibilityState === 'visible') {
+        waitForIdle();
+      }
+    });
+  }
 
   async function loadDependencies() {
     const THREE = await import('three');
@@ -453,9 +542,11 @@
 
     const remaining = MIN_CLOUD_MS - (performance.now() - cloudShownAt);
     if (remaining > 0) {
-      setTimeout(swap, remaining);
+      const timeoutId = setTimeout(swap, remaining);
+      return () => clearTimeout(timeoutId);
     } else {
       swap();
+      return () => {};
     }
   }
 
