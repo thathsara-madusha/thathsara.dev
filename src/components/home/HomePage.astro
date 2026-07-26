@@ -126,8 +126,11 @@ import Work from "./sections/Work.astro";
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 28px;
-    background: linear-gradient(var(--bg-0), transparent);
+    padding: 13px 28px;
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+    background: color-mix(in srgb, var(--bg-0) 78%, transparent);
+    backdrop-filter: blur(16px) saturate(130%);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
     font-size: 12px;
   }
   .brand {
@@ -156,12 +159,31 @@ import Work from "./sections/Work.astro";
     gap: 18px;
   }
   .nav .links a {
+    position: relative;
+    padding: 5px 0;
     color: var(--fg-mute);
     text-decoration: none;
-    transition: color 140ms;
+    transition: color 160ms;
+  }
+  .nav .links a::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: var(--amber);
+    content: "";
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 180ms ease;
   }
   .nav .links a:hover {
     color: var(--fg);
+  }
+  .nav .links a:hover::after,
+  .nav .links a.active::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
   .nav .links a.active {
     color: var(--amber);
@@ -175,8 +197,8 @@ import Work from "./sections/Work.astro";
     color: var(--amber);
     text-decoration: none;
     border: 1px solid var(--line-strong);
-    border-radius: 3px;
-    padding: 4px 10px;
+    border-radius: 999px;
+    padding: 4px 11px;
     transition:
       color 140ms,
       border-color 140ms;
@@ -224,11 +246,12 @@ import Work from "./sections/Work.astro";
   .content {
     position: relative;
     z-index: 2;
-    width: min(52%, 720px);
-    padding: 0 28px;
+    width: min(54%, 760px);
+    padding: 0 clamp(28px, 4vw, 64px);
   }
 
   .panel {
+    position: relative;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -238,12 +261,36 @@ import Work from "./sections/Work.astro";
     scroll-snap-align: start;
     scroll-snap-stop: normal;
   }
+  .panel:not(.hero)::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      var(--amber),
+      color-mix(in srgb, var(--line) 75%, transparent) 18%,
+      transparent 82%
+    );
+    content: "";
+    opacity: 0.52;
+  }
 
   .kicker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 10.5px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--amber);
+  }
+  .kicker::after {
+    width: 42px;
+    height: 1px;
+    background: var(--amber-dim);
+    content: "";
   }
   .panel h2 {
     font-family: var(--serif);
@@ -252,6 +299,7 @@ import Work from "./sections/Work.astro";
     margin: 4px 0 8px;
     font-weight: 400;
     color: var(--fg);
+    text-wrap: balance;
   }
   .panel p {
     color: var(--fg-soft);
@@ -304,6 +352,8 @@ import Work from "./sections/Work.astro";
     margin: 6px 0 18px;
     color: var(--fg);
     font-weight: 400;
+    text-wrap: balance;
+    text-shadow: 0 12px 48px rgb(0 0 0 / 36%);
   }
   .name .em {
     font-style: italic;
@@ -333,11 +383,17 @@ import Work from "./sections/Work.astro";
     text-decoration: none;
     font-size: 12px;
     letter-spacing: 0.04em;
-    transition: all 160ms;
+    transition:
+      color 160ms,
+      border-color 160ms,
+      background 160ms,
+      box-shadow 160ms,
+      transform 160ms;
   }
   .btn:hover {
     border-color: var(--amber);
     color: var(--fg);
+    transform: translateY(-2px);
   }
   .btn.primary {
     background: var(--amber);
@@ -347,6 +403,7 @@ import Work from "./sections/Work.astro";
   }
   .btn.primary:hover {
     filter: brightness(1.08);
+    box-shadow: 0 8px 28px rgb(232 179 74 / 18%);
   }
 
   .scroll-hint {
@@ -377,15 +434,41 @@ import Work from "./sections/Work.astro";
     margin-top: 12px;
   }
   .card {
+    position: relative;
+    overflow: hidden;
     border: 1px solid var(--line);
     background: color-mix(in srgb, var(--bg-1) 78%, transparent);
     backdrop-filter: blur(6px);
-    border-radius: 4px;
-    padding: 16px 18px;
-    transition: border-color 160ms;
+    border-radius: 8px;
+    padding: 19px 20px;
+    transition:
+      border-color 180ms,
+      background 180ms,
+      transform 180ms;
+  }
+  .card::before {
+    position: absolute;
+    top: 18px;
+    bottom: 18px;
+    left: 0;
+    width: 2px;
+    border-radius: 0 2px 2px 0;
+    background: var(--amber);
+    content: "";
+    opacity: 0;
+    transform: scaleY(0.45);
+    transition:
+      opacity 180ms,
+      transform 180ms;
   }
   .card:hover {
-    border-color: var(--line-strong);
+    border-color: color-mix(in srgb, var(--amber) 42%, var(--line));
+    background: color-mix(in srgb, var(--bg-1) 90%, transparent);
+    transform: translateX(4px);
+  }
+  .card:hover::before {
+    opacity: 1;
+    transform: scaleY(1);
   }
   .card h3 {
     margin: 0 0 6px;
@@ -439,14 +522,26 @@ import Work from "./sections/Work.astro";
   .work-list {
     display: flex;
     flex-direction: column;
-    margin-top: 8px;
+    gap: 4px;
+    margin-top: 10px;
   }
   .work-item {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 14px;
-    padding: 22px 0;
+    margin: 0 -14px;
+    padding: 22px 14px;
     border-top: 1px solid var(--line);
+    border-radius: 7px;
+    transition:
+      background 180ms,
+      border-color 180ms,
+      transform 180ms;
+  }
+  .work-item:hover {
+    border-color: color-mix(in srgb, var(--amber) 35%, var(--line));
+    background: color-mix(in srgb, var(--bg-1) 74%, transparent);
+    transform: translateX(4px);
   }
   .work-item .num {
     font-family: var(--serif);
@@ -474,8 +569,23 @@ import Work from "./sections/Work.astro";
     text-decoration: none;
     transition: color 140ms;
   }
+  .work-item h3 a::after {
+    display: inline-block;
+    margin-left: 7px;
+    content: "↗";
+    font-size: 0.72em;
+    opacity: 0.55;
+    transform: translateY(-2px);
+    transition:
+      opacity 140ms,
+      transform 140ms;
+  }
   .work-item h3 a:hover {
     color: var(--fg);
+  }
+  .work-item h3 a:hover::after {
+    opacity: 1;
+    transform: translate(2px, -4px);
   }
   .work-item p {
     font-size: 13px;
@@ -546,11 +656,19 @@ import Work from "./sections/Work.astro";
     margin: 26px 0 0;
     max-width: 560px;
     overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg-1);
+    box-shadow: 0 24px 64px rgb(0 0 0 / 24%);
   }
   .fastr-shot img {
     display: block;
     width: 100%;
     height: auto;
+    transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fastr-shot:hover img {
+    transform: scale(1.018);
   }
 
   .gpu-shot {
@@ -559,6 +677,7 @@ import Work from "./sections/Work.astro";
     border-radius: 6px;
     overflow: hidden;
     background: #000;
+    box-shadow: 0 24px 64px rgb(0 0 0 / 20%);
   }
   .gpu-shot img {
     display: block;
@@ -566,6 +685,13 @@ import Work from "./sections/Work.astro";
     height: auto;
     aspect-ratio: 16 / 9;
     object-fit: cover;
+    transition:
+      filter 300ms,
+      transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gpu-shot:hover img {
+    filter: saturate(1.08) contrast(1.03);
+    transform: scale(1.015);
   }
   @media (max-width: 560px) {
     .gpu-shot img {
