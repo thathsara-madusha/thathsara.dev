@@ -1,0 +1,50 @@
+---
+const entries = [
+  {
+    when: "ongoing",
+    role: "Undergraduate Researcher",
+    at: "University of Colombo",
+    current: true,
+    note: "Researching DDoS-aware autoscaling for cloud resilience against EDoS attacks: distinguishing legitimate from malicious traffic when allocating resources.",
+  },
+  {
+    when: "nov 2025 - apr 2026",
+    role: "Intern Software Engineer",
+    at: "WSO2",
+    current: false,
+    note: "Shipped a self-service persistent-storage feature for cloud applications — Go backend services and a React/TypeScript marketplace UI — eliminating manual infrastructure configuration, with every change passing senior review across six codebases and three teams.",
+  },
+  {
+    when: "2023 - 2027",
+    role: "BSc (Hons) Computer Science",
+    at: "UCSC",
+    current: true,
+    note: "Honours degree at the University of Colombo, GPA 3.66 and two Director's List awards for academic excellence.",
+  },
+  {
+    when: "2022 - 2024",
+    role: "Freelance Web Developer",
+    at: "Remote",
+    current: false,
+    note: "Delivered Laravel CMS and web apps for clients, owning backend architecture, deployment, and SEO performance.",
+  },
+];
+---
+
+<section id="path" class="panel">
+  <span class="kicker">/ path</span>
+  <h2>How I got here.</h2>
+  <ol class="timeline">
+    {
+      entries.map((entry) => (
+        <li class={entry.current ? "cur" : ""}>
+          <span class="when">{entry.when}</span>
+          <h3>
+            {entry.role} <span class="at">· {entry.at}</span>
+          </h3>
+          <p>{entry.note}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>

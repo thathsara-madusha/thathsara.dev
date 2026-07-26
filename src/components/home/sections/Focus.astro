@@ -1,0 +1,40 @@
+---
+const items = [
+  {
+    title: "engineering",
+    description:
+      "Building software end to end, from Go and Rust backends to React/TypeScript interfaces. I care about the details most people skip past.",
+    tags: ["Go", "Rust", "TypeScript"],
+  },
+  {
+    title: "systems & cloud",
+    description:
+      "Designing the moving parts so they actually fit: clear interfaces, sensible data, and infrastructure you can reason about.",
+    tags: ["Kubernetes", "Terraform", "AWS"],
+  },
+  {
+    title: "reliability",
+    description:
+      "Shipping is the start, not the finish. I like the unglamorous DevOps work that makes things observable, testable, and hard to break.",
+    tags: ["Observability", "CI/CD", "Grafana"],
+  },
+];
+---
+
+<section id="focus" class="panel">
+  <span class="kicker">/ focus</span>
+  <h2>What I work on.</h2>
+  <div class="cards">
+    {
+      items.map((item) => (
+        <article class="card">
+          <h3>{item.title}</h3>
+          <p>{item.description}</p>
+          <ul class="tags">
+            {item.tags.map((tag) => <li>{tag}</li>)}
+          </ul>
+        </article>
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,39 @@
+---
+const items = [
+  { id: "top", label: "intro" },
+  { id: "about", label: "about" },
+  { id: "focus", label: "focus" },
+  { id: "work", label: "work" },
+  { id: "fastr", label: "fastr" },
+  { id: "model", label: "model" },
+  { id: "path", label: "path" },
+  { id: "contact", label: "contact" },
+];
+---
+
+<nav class="nav">
+  <div class="brand-group">
+    <a class="brand" href="#top">
+      <span class="dot"></span>
+      <span>thathsara<span class="ext">.dev</span></span>
+    </a>
+    <a class="resume" href="/resume.pdf" target="_blank" rel="noopener">
+      resume ↗
+    </a>
+  </div>
+
+  <button
+    class="nav-toggle"
+    id="navToggle"
+    type="button"
+    aria-label="menu"
+    aria-expanded="false"
+    aria-controls="navLinks"
+  >
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="links" id="navLinks">
+    {items.map((item) => <a href={`#${item.id}`}>{item.label}</a>)}
+  </div>
+</nav>

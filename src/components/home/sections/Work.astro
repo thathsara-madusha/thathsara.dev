@@ -1,0 +1,90 @@
+---
+import Seer from "../../Seer.astro";
+
+const projects = [
+  {
+    number: "01",
+    title: "Seer",
+    description:
+      "A GPT-style transformer language model built end to end in Rust on HuggingFace's Candle: BPE tokenizer, multi-head causal self-attention, and the full training pipeline from scratch.",
+    technologies: ["Rust", "Candle", "ML"],
+    Badge: Seer,
+    link: "https://github.com/nova9/seer",
+  },
+  {
+    number: "02",
+    title: "Home Lab",
+    description:
+      "A self-hosted infrastructure lab exposed to the public internet: a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
+    technologies: ["Kubernetes", "Nginx", "Prometheus"],
+  },
+  {
+    number: "03",
+    title: "CareerSync",
+    description:
+      "A cloud-native recruitment platform that processed over 12,000 résumé PDFs with OpenAI for automated candidate screening — React/Laravel, provisioned with Terraform, deployed on Kubernetes.",
+    technologies: ["Kubernetes", "Terraform", "OpenAI"],
+  },
+];
+
+const icons: Record<string, { src: string; href: string }> = {
+  Rust: { src: "/icons/rust.svg", href: "https://www.rust-lang.org" },
+  Kubernetes: {
+    src: "/icons/kubernetes.svg",
+    href: "https://kubernetes.io",
+  },
+  Nginx: { src: "/icons/nginx.svg", href: "https://nginx.org" },
+};
+---
+
+<section id="work" class="panel">
+  <span class="kicker">/ selected work</span>
+  <h2>Things I've built.</h2>
+  <div class="work-list">
+    {
+      projects.map((project) => (
+        <article class="work-item">
+          <span class="num">{project.number}</span>
+          <div>
+            <div class="work-head">
+              <h3>
+                {project.link ? (
+                  <a href={project.link} target="_blank" rel="noopener">
+                    {project.title}
+                  </a>
+                ) : (
+                  project.title
+                )}
+              </h3>
+              {project.Badge && <project.Badge hideCaption width={28} />}
+            </div>
+            <p>{project.description}</p>
+            <ul class="meta">
+              {project.technologies.map((technology) =>
+                icons[technology] ? (
+                  <li class="meta-logo">
+                    <a
+                      href={icons[technology].href}
+                      target="_blank"
+                      rel="noopener"
+                      aria-label={technology}
+                    >
+                      <img
+                        class="meta-icon"
+                        src={icons[technology].src}
+                        alt={technology}
+                        height="20"
+                      />
+                    </a>
+                  </li>
+                ) : (
+                  <li>{technology}</li>
+                ),
+              )}
+            </ul>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>
