@@ -51,7 +51,14 @@
       scattered: null,
       introActive: false,
       introT: 0,
-      scrollProgress: 0
+      scrollProgress: 0,
+      pointerX: 0,
+      pointerY: 0,
+      pointerTargetX: 0,
+      pointerTargetY: 0,
+      pointerActive: 0,
+      pointerTargetActive: 0,
+      reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     };
 
     (async () => {
@@ -285,6 +292,17 @@
       const max = document.documentElement.scrollHeight - window.innerHeight;
       sceneState.scrollProgress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (sceneState.reduceMotion || event.pointerType === 'touch') return;
+      sceneState.pointerTargetX = (event.clientX / window.innerWidth) * 2 - 1;
+      sceneState.pointerTargetY = 1 - (event.clientY / window.innerHeight) * 2;
+      sceneState.pointerTargetActive = 1;
+    };
+
+    const onPointerLeave = () => {
+      sceneState.pointerTargetActive = 0;
+    };
     
     const resize = () => {
       const w = wrap.clientWidth, h = wrap.clientHeight;
@@ -298,6 +316,9 @@
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', resize);
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    document.documentElement.addEventListener('pointerleave', onPointerLeave);
+    window.addEventListener('blur', onPointerLeave);
     
     onScroll();
     resize();
@@ -305,6 +326,9 @@
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('pointermove', onPointerMove);
+      document.documentElement.removeEventListener('pointerleave', onPointerLeave);
+      window.removeEventListener('blur', onPointerLeave);
     };
   }
 
@@ -376,7 +400,10 @@
         uScale: { value: rendererHeight * 0.5 },
         uMap: { value: spriteTexture },
         uColor: { value: new THREE.Color(0xffffff) },
+        uAccent: { value: new THREE.Color(0xe8b34a) },
         uTime: { value: 0 },
+        uPointer: { value: new THREE.Vector2(0, 0) },
+        uHover: { value: 0 },
       },
       transparent: true,
       depthWrite: false,
@@ -385,23 +412,40 @@
         uniform float uSize;
         uniform float uScale;
         uniform float uTime;
+        uniform vec2 uPointer;
+        uniform float uHover;
         attribute float aSeed;
+        attribute vec3 aNormal;
         varying float vTw;
+        varying float vHover;
         void main() {
           vTw = 0.65 + 0.35 * sin(uTime * 2.2 + aSeed);
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = uSize * (uScale / -mv.z) * (0.85 + 0.3 * vTw);
+          vec4 baseMv = modelViewMatrix * vec4(position, 1.0);
+          vec4 baseClip = projectionMatrix * baseMv;
+          vec2 screenPosition = baseClip.xy / baseClip.w;
+          float cursorDistance = distance(screenPosition, uPointer);
+          vHover = smoothstep(0.34, 0.0, cursorDistance) * uHover;
+
+          float ripple = sin(cursorDistance * 42.0 - uTime * 7.0 + aSeed * 0.35);
+          vec3 displaced = position + aNormal * vHover * (0.035 + ripple * 0.018);
+          vec4 mv = modelViewMatrix * vec4(displaced, 1.0);
+
+          gl_PointSize = uSize * (uScale / -mv.z)
+            * (0.85 + 0.3 * vTw + vHover * 0.75);
           gl_Position = projectionMatrix * mv;
         }
       `,
       fragmentShader: `
         uniform sampler2D uMap;
         uniform vec3 uColor;
+        uniform vec3 uAccent;
         varying float vTw;
+        varying float vHover;
         void main() {
           vec4 tex = texture2D(uMap, gl_PointCoord);
           if (tex.a < 0.02) discard;
-          gl_FragColor = vec4(uColor, tex.a * vTw);
+          vec3 color = mix(uColor, uAccent, vHover * 0.8);
+          gl_FragColor = vec4(color, tex.a * (vTw + vHover * 0.25));
         }
       `,
     });
@@ -551,6 +595,11 @@
   }
 
   function updateAnimation(THREE: any, state: any, time: number, dt: number, controls: any) {
+    const pointerEase = 1 - Math.exp(-dt * 10);
+    state.pointerX += (state.pointerTargetX - state.pointerX) * pointerEase;
+    state.pointerY += (state.pointerTargetY - state.pointerY) * pointerEase;
+    state.pointerActive += (state.pointerTargetActive - state.pointerActive) * pointerEase;
+
     // Intro scatter animation
     if (state.introActive && state.points && state.scattered && state.basePositions) {
       state.introT = Math.min(1, state.introT + dt * 0.6);
@@ -567,15 +616,19 @@
     if (state.points) {
       state.points.material.uniforms.uTime.value = time;
       state.points.material.uniforms.uSize.value = 0.009 + Math.sin(time * 1.5) * 0.001;
+      state.points.material.uniforms.uPointer.value.set(state.pointerX, state.pointerY);
+      state.points.material.uniforms.uHover.value = state.pointerActive;
     }
     
     // Global rotation and float based on scroll
     const activeObject = state.points ?? state.actual;
     if (activeObject) {
-      const targetRotY = state.scrollProgress * Math.PI * 2.4 + time * 0.05;
+      const pointerRotY = state.pointerX * state.pointerActive * 0.12;
+      const pointerRotX = -state.pointerY * state.pointerActive * 0.07;
+      const targetRotY = state.scrollProgress * Math.PI * 2.4 + time * 0.05 + pointerRotY;
       activeObject.rotation.y += (targetRotY - activeObject.rotation.y) * 0.06;
       
-      const targetRotX = (state.scrollProgress - 0.5) * 0.5;
+      const targetRotX = (state.scrollProgress - 0.5) * 0.5 + pointerRotX;
       activeObject.rotation.x += (targetRotX - activeObject.rotation.x) * 0.05;
       
       const targetY = (Math.sin(time * 0.5) * 0.03 - state.scrollProgress * 0.25);
