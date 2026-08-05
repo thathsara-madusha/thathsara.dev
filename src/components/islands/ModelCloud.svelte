@@ -1,7 +1,7 @@
 <script lang="ts">
   let {
     src = '/me.glb',
-    hiSrc = '/fixed.glb',
+    hiSrc = '/decimated.glb',
     lockLook = false,
     shiftX = 0,
     disableHiRes = false,
