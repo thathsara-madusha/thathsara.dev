@@ -16,7 +16,7 @@ import Work from "./sections/Work.astro";
   <div class="scroll-progress" aria-hidden="true"><i></i></div>
 
   <div class="model-bg" aria-hidden="true">
-    <ModelCloud client:idle src="/me.glb" lockLook={true} shiftX={1} disableHiRes={true}/>
+    <ModelCloud client:idle src="/me.glb" lockLook={true} shiftX={1.25} disableHiRes={true}/>
   </div>
 
   <HomeNav />
@@ -35,7 +35,7 @@ import Work from "./sections/Work.astro";
 </Layout>
 
 <style is:global>
-  /* Pinned 3D model: right half on desktop, full-bleed backdrop on mobile */
+  /* Pinned 3D model: supporting right column on desktop, full-bleed backdrop on mobile */
   /* full-viewport canvas so the scatter intro is never clipped; the model
      itself is pushed to the right via the component's shiftX prop */
   .model-bg {
@@ -245,11 +245,11 @@ import Work from "./sections/Work.astro";
     transform: translateY(-5.5px) rotate(-45deg);
   }
 
-  /* Scrolling content column: left half on desktop */
+  /* Scrolling content column: primary two-thirds on desktop */
   .content {
     position: relative;
     z-index: 2;
-    width: min(54%, 760px);
+    width: min(64%, 1040px);
     padding: 0 clamp(28px, 4vw, 64px);
   }
 
