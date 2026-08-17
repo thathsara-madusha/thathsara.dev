@@ -1,0 +1,41 @@
+---
+interface Props {
+  direction?: "external" | "down";
+  size?: number;
+}
+
+const { direction = "external", size = 15 } = Astro.props;
+---
+
+<svg
+  class="icon-arrow"
+  width={size}
+  height={size}
+  viewBox="0 0 16 16"
+  fill="none"
+  aria-hidden="true"
+>
+  {
+    direction === "down" ? (
+      <path d="M8 2.5v10.25m-4-3.6 4 4 4-4" />
+    ) : (
+      <path d="M5 11 12 4M6 4h6v6" />
+    )
+  }
+</svg>
+
+<style>
+  .icon-arrow {
+    display: inline-block;
+    flex: 0 0 auto;
+    overflow: visible;
+    vertical-align: -0.15em;
+  }
+
+  path {
+    stroke: currentColor;
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>

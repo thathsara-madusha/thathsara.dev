@@ -19,8 +19,8 @@
   /* Text */
   --fg: #e5e8ee;
   --fg-soft: #b9c0cc;
-  --fg-mute: #6b7484;
-  --fg-faint: #444b58;
+  --fg-mute: #8993a3;
+  --fg-faint: #747f90;
 
   /* Accents */
   --amber: #e8b34a;
@@ -126,6 +126,25 @@ button {
   outline-offset: 4px;
 }
 
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 12px;
+  z-index: 100;
+  padding: 9px 12px;
+  border-radius: 4px;
+  background: var(--amber);
+  color: var(--bg-0);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-150%);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 ::selection {
   background: var(--amber);
   color: var(--bg-0);
@@ -134,7 +153,7 @@ button {
 @media (min-width: 901px) {
   html,
   body {
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
   }
 }
 

@@ -1,23 +1,46 @@
+---
+import Arrow from "../../icons/Arrow.astro";
+---
+
 <section id="contact" class="panel contact">
-  <span class="kicker">/ contact</span>
-  <h2>Let's build something.</h2>
+  <h2>Choose where we start.</h2>
   <p>Open to interesting problems and good people to build them with.</p>
-  <div class="contact-links">
-    <a href="/resume.pdf" target="_blank" rel="noopener">resume</a>
-    <a href="mailto:madusha.ttsr@gmail.com">email</a>
-    <a href="https://github.com/nova9" target="_blank" rel="noopener">github</a>
+  <div class="contact-paths">
+    <a class="contact-path primary" href="mailto:madusha.ttsr@gmail.com">
+      <span>Start a conversation</span>
+      <small>Collaborations and project enquiries</small>
+      <Arrow size={15} />
+    </a>
+    <a class="contact-path" href="/resume.pdf" target="_blank" rel="noopener">
+      <span>Review my résumé</span>
+      <small>Experience, education, and skills</small>
+      <Arrow size={15} />
+    </a>
+    <a
+      class="contact-path"
+      href="https://github.com/nova9"
+      target="_blank"
+      rel="noopener"
+    >
+      <span>Inspect the code</span>
+      <small>Open-source work on GitHub</small>
+      <Arrow size={15} />
+    </a>
+  </div>
+  <div class="social-links" aria-label="Social profiles">
     <a
       href="https://www.linkedin.com/in/thathsara-m"
       target="_blank"
-      rel="noopener">linkedin</a
+      rel="noopener">LinkedIn</a
     >
     <a
       href="https://www.instagram.com/_.thathsara/"
       target="_blank"
-      rel="noopener">instagram</a
+      rel="noopener">Instagram</a
     >
   </div>
   <footer>
-    © {new Date().getFullYear()} Thathsara Madusha, rendered live with three.js
+    © {new Date().getFullYear()} Thathsara Madusha · built with Astro, Svelte,
+    and three.js
   </footer>
 </section>

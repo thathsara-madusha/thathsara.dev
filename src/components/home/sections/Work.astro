@@ -1,29 +1,31 @@
 ---
 import Seer from "../../Seer.astro";
+import Arrow from "../../icons/Arrow.astro";
 
 const projects = [
   {
-    number: "01",
     title: "Seer",
     description:
       "A GPT-style transformer language model built end to end in Rust on HuggingFace's Candle: BPE tokenizer, multi-head causal self-attention, and the full training pipeline from scratch.",
     technologies: ["Rust", "Candle", "ML"],
     Badge: Seer,
     link: "https://github.com/nova9/seer",
+    proof: "source code",
   },
   {
-    number: "02",
     title: "Home Lab",
     description:
       "A self-hosted infrastructure lab exposed to the public internet: a Kubernetes cluster behind Nginx with TLS, monitored live on Grafana & Prometheus.",
     technologies: ["Kubernetes", "Nginx", "Prometheus"],
+    link: "#homelab",
+    proof: "field notes below",
   },
   {
-    number: "03",
     title: "CareerSync",
     description:
       "A cloud-native recruitment platform that processed over 12,000 résumé PDFs with OpenAI for automated candidate screening — React/Laravel, provisioned with Terraform, deployed on Kubernetes.",
     technologies: ["Kubernetes", "Terraform", "OpenAI"],
+    proof: "selected build · no public link",
   },
 ];
 
@@ -38,19 +40,25 @@ const icons: Record<string, { src: string; href: string }> = {
 ---
 
 <section id="work" class="panel">
-  <span class="kicker">/ selected work</span>
   <h2>Things I've built.</h2>
   <div class="work-list">
     {
       projects.map((project) => (
         <article class="work-item">
-          <span class="num">{project.number}</span>
           <div>
             <div class="work-head">
               <h3>
                 {project.link ? (
-                  <a href={project.link} target="_blank" rel="noopener">
+                  <a
+                    href={project.link}
+                    target={project.link.startsWith("#") ? undefined : "_blank"}
+                    rel={project.link.startsWith("#") ? undefined : "noopener"}
+                  >
                     {project.title}
+                    <Arrow
+                      direction={project.link.startsWith("#") ? "down" : "external"}
+                      size={13}
+                    />
                   </a>
                 ) : (
                   project.title
@@ -82,6 +90,7 @@ const icons: Record<string, { src: string; href: string }> = {
                 ),
               )}
             </ul>
+            <span class="work-proof">{project.proof}</span>
           </div>
         </article>
       ))

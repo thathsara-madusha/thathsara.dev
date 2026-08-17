@@ -18,6 +18,8 @@
   let status = $state('loading…');
   let progress = $state(0);
   let ready = $state(false);
+  let failed = $state(false);
+  let staticFallback = $state(false);
   let hiLoading = $state(false);
   let hiPhrase = $state('');
   let hiProgress = $state(0);
@@ -36,6 +38,13 @@
 
   $effect(() => {
     if (!canvas || !wrap) return;
+
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      staticFallback = true;
+      ready = true;
+      return;
+    }
+
     let disposed = false;
     let animationFrameId = 0;
     let cleanupEvents = () => {};
@@ -106,6 +115,11 @@
         // requestAnimationFrame automatically passes a high-res timestamp here
         const tick = (timestamp = 0) => {
           if (disposed) return; // Prevent ghost loops
+
+          if (document.visibilityState !== 'visible') {
+            animationFrameId = requestAnimationFrame(tick);
+            return;
+          }
           
           // Update the timer with the current timestamp
           timer.update(timestamp);
@@ -150,7 +164,11 @@
           }
         }
       } catch (err) {
-        if (!disposed) status = 'load failed';
+        if (!disposed) {
+          failed = true;
+          ready = true;
+          status = 'Interactive portrait unavailable — showing a still.';
+        }
       }
     })();
 
@@ -170,11 +188,16 @@
     const connection = (
       navigator as Navigator & {
         connection?: { saveData?: boolean; effectiveType?: string };
+        deviceMemory?: number;
       }
-    ).connection;
+    );
 
-    if (connection?.saveData) return false;
-    return !['slow-2g', '2g'].includes(connection?.effectiveType ?? '');
+    if (window.innerWidth < 1200) return false;
+    if (connection.deviceMemory !== undefined && connection.deviceMemory < 4) return false;
+    if (connection.connection?.saveData) return false;
+    return !['slow-2g', '2g', '3g'].includes(
+      connection.connection?.effectiveType ?? '',
+    );
   }
 
   function waitForHighResOpportunity(signal: AbortSignal) {
@@ -642,13 +665,21 @@
 <!-- The markup and styles remain identical to your original code -->
 
 <!-- Rest of markup and styles remain identical -->
-<div class="cloud" bind:this={wrap}>
+<div
+  class="cloud"
+  class:static-fallback={staticFallback}
+  class:failed={failed}
+  bind:this={wrap}
+>
   <canvas bind:this={canvas}></canvas>
-  {#if !ready}
+  {#if !ready && !failed}
     <div class="overlay">
       <div class="spinner"></div>
       <span>{status}</span>
     </div>
+  {/if}
+  {#if failed}
+    <p class="fallback-note">{status}</p>
   {/if}
   {#if hiLoading}
     <div class="hi-loader">
@@ -669,6 +700,16 @@
     overflow: hidden;
     background: radial-gradient(700px 500px at 50% 45%, rgba(122,162,247,0.06), transparent 70%);
   }
+  .cloud.static-fallback,
+  .cloud.failed {
+    background:
+      linear-gradient(90deg, rgba(10, 12, 15, 0.2), rgba(10, 12, 15, 0.58)),
+      url('/portrait-fallback.webp') center / cover no-repeat;
+  }
+  .cloud.static-fallback canvas,
+  .cloud.failed canvas {
+    opacity: 0;
+  }
   canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
   canvas:active { cursor: grabbing; }
 
@@ -682,6 +723,18 @@
     width: 24px; height: 24px;
     border: 2px solid var(--line-strong); border-top-color: var(--azure);
     border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  .fallback-note {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    max-width: 28ch;
+    margin: 0;
+    color: var(--fg-mute);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.45;
+    text-align: right;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 

@@ -1,0 +1,206 @@
+<section id="homelab" class="panel homelab">
+  <div class="lab-heading">
+    <h2>The cluster I can reach with my hands.</h2>
+    <p>
+      A self-hosted Kubernetes environment on a compact local node, exposed to
+      the public internet through Nginx and TLS and observed with Prometheus and
+      Grafana. It gives me a real place to operate networking, deployment, and
+      reliability decisions outside a local-only sandbox.
+    </p>
+  </div>
+
+  <ol class="lab-flow" aria-label="Home lab request path">
+    <li><span>01</span>public internet</li>
+    <li><span>02</span>Nginx + TLS</li>
+    <li><span>03</span>Kubernetes</li>
+    <li><span>04</span>workloads</li>
+    <li><span>05</span>Prometheus + Grafana</li>
+  </ol>
+
+  <div class="lab-gallery">
+    <figure class="lab-hero">
+      <img
+        src="/projects/homelab-overview.webp"
+        alt="Compact home-lab server, UPS, network cable, and power hardware mounted above a metal cabinet"
+        width="1800"
+        height="1350"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption>
+        The physical edge: compute, network, and power in one deliberately small
+        footprint.
+      </figcaption>
+    </figure>
+    <figure>
+      <img
+        src="/projects/homelab-cabinet.webp"
+        alt="Low-angle view of the home-lab server and UPS above a locked metal cabinet"
+        width="1600"
+        height="1200"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption>Hardware you can inspect, unplug, recover, and improve.</figcaption>
+    </figure>
+    <figure class="lab-portrait">
+      <img
+        src="/projects/homelab-node.webp"
+        alt="Close view of the home-lab node with Ethernet and power connections"
+        width="1200"
+        height="1600"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption>The node at the center of the cluster.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .homelab {
+    gap: 24px;
+  }
+
+  .lab-heading {
+    display: grid;
+    gap: 12px;
+  }
+
+  .lab-flow {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 8px 0 2px;
+    padding: 0;
+    list-style: none;
+    border-block: 1px solid var(--line);
+  }
+
+  .lab-flow li {
+    position: relative;
+    min-width: 0;
+    padding: 14px 10px 14px 0;
+    color: var(--fg-soft);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .lab-flow li:not(:last-child)::after {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    width: 16px;
+    height: 1px;
+    background: var(--amber-dim);
+    content: "";
+  }
+
+  .lab-flow span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--amber);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lab-gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.75fr);
+    grid-template-rows: repeat(2, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .lab-gallery figure {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--bg-1);
+  }
+
+  .lab-gallery .lab-hero {
+    grid-row: 1 / 3;
+  }
+
+  .lab-gallery img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lab-gallery figure:hover img {
+    transform: scale(1.025);
+  }
+
+  .lab-gallery figcaption {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 30px 13px 11px;
+    background: linear-gradient(transparent, rgb(10 12 15 / 88%));
+    color: var(--fg-soft);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  @media (min-width: 901px) {
+    .homelab {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .lab-flow {
+      grid-template-columns: 1fr;
+      border-block: 0;
+      border-left: 1px solid var(--line);
+    }
+
+    .lab-flow li {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      align-items: center;
+      padding: 7px 0 7px 13px;
+      font-size: 11px;
+    }
+
+    .lab-flow span {
+      margin: 0;
+    }
+
+    .lab-flow li:not(:last-child)::after {
+      top: auto;
+      right: auto;
+      bottom: -3px;
+      left: -3px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .lab-gallery {
+      grid-template-columns: 1fr 0.72fr;
+      grid-template-rows: minmax(280px, 56vh) minmax(180px, 34vh);
+    }
+
+    .lab-gallery .lab-hero {
+      grid-column: 1 / 3;
+      grid-row: auto;
+    }
+
+    .lab-gallery .lab-portrait {
+      grid-column: 2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-gallery img {
+      transition: none;
+    }
+  }
+</style>

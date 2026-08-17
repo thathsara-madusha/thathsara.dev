@@ -1,12 +1,10 @@
 ---
+import Arrow from "../icons/Arrow.astro";
+
 const items = [
   { id: "top", label: "intro" },
-  { id: "about", label: "about" },
-  { id: "focus", label: "focus" },
   { id: "work", label: "work" },
-  { id: "fastr", label: "fastr" },
-  { id: "model", label: "model" },
-  { id: "path", label: "path" },
+  { id: "path", label: "experience" },
   { id: "contact", label: "contact" },
 ];
 ---
@@ -18,7 +16,7 @@ const items = [
       <span>thathsara<span class="ext">.dev</span></span>
     </a>
     <a class="resume" href="/resume.pdf" target="_blank" rel="noopener">
-      resume ↗
+      resume <Arrow size={12} />
     </a>
   </div>
 
@@ -26,7 +24,7 @@ const items = [
     class="nav-toggle"
     id="navToggle"
     type="button"
-    aria-label="menu"
+    aria-label="Open navigation"
     aria-expanded="false"
     aria-controls="navLinks"
   >
