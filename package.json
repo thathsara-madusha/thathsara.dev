@@ -1,7 +1,7 @@
 {
   "name": "thathsara-dev",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "thathsara.dev — live operations console portfolio. Astro + Svelte 5.",
   "scripts": {
